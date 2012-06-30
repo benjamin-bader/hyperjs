@@ -3,16 +3,29 @@ hyper.js
 
 HyperCard rekindled - in Javascript!
 
+
+DEPS:
+	- jasmine for unit tests
+	- jasmine-headless-webkit for executing same
+	- jake for building
+		- nodejs for jake
+	- Google Closure for the special sauce?
+
 TODO:
 * Investigate CI solutions.  Will TravisCI work with JS-exclusive projects?  Run Jasmine specs?  Other tests?
   What other hosted CI options are there?  Is it worth it to set up Jenkins on the VPS?
+  	* With a nodejs-based build system, looks like Jenkins on a VPS is it.
+  	* But can we build via the Rails asset pipeline?  'Twould be nice to avoid a ruby dependency, I guess,
+  	  but the final importance of the build system will be to ensure the consistency and quality of the product
+  	  by GTFO of the way.  Maybe Rails is less intrusive than jake - investigate!
+
 * Decide on a runtime strategy - top-down interpreter, lexer/parser interpreter, bytecode interpreter?
 	* The last might allow for nifty optimizations like JIT, but that's a little absurd in Javascript.
 * Apportion HT intrinsics - how many are covered by existing JS features e.g. Math?
 * Investigate UI approaches:
 	* Need to source all relevant HT events - can Canvas do that on its own?
 	* Ideally would have widgets built-in to determine what was clicked.  Don't really want to write
-	  R*-Tree in JS - there's more than enough work as is!
+	  R* tree in JS - there's more than enough work as is!
 
 * Understand HyperCard's message hierarchy.
 * Evaluate strategies for generating system messages - setTimeout() for idle?  If so, what frequency?
