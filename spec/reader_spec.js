@@ -1,24 +1,24 @@
 describe("StringReader", function() {
-	it("exists in Hyperjs", function() {
-		expect(Hyperjs).toBeDefined();
-		expect(Hyperjs).not.toBeNull();
+	it("exists in hjs", function() {
+		expect(hjs).toBeDefined();
+		expect(hjs).not.toBeNull();
 
-		expect(Hyperjs.StringReader).not.toBeNull();
-		expect(Hyperjs.StringReader).toBeDefined();
-		expect(typeof Hyperjs.StringReader).toBe("function");
+		expect(hjs.StringReader).not.toBeNull();
+		expect(hjs.StringReader).toBeDefined();
+		expect(typeof hjs.StringReader).toBe("function");
 	});
 
 	it("has 1-based column numbering", function() {
-		expect(new Hyperjs.StringReader("a").column()).toEqual(1);
+		expect(new hjs.StringReader("a").column()).toEqual(1);
 	});
 
 	it("has 1-based line numbering", function() {
-		expect(new Hyperjs.StringReader("x").line()).toEqual(1);
+		expect(new hjs.StringReader("x").line()).toEqual(1);
 	});
 
 	describe(".isEOF", function() {
 		it("returns true when all input has been exhausted", function() {
-			var reader = new Hyperjs.StringReader("a");
+			var reader = new hjs.StringReader("a");
 
 			expect(reader.isEOF()).toBe(false);
 			reader.readNextChar();
@@ -29,7 +29,7 @@ describe("StringReader", function() {
 	describe(".reset", function() {
 		describe("when .mark has not been called", function() {
 			it("returns the reader to its initial state", function() {
-				var reader = new Hyperjs.StringReader("a\nc");
+				var reader = new hjs.StringReader("a\nc");
 
 				expect(reader.isEOF()).toBe(false);
 				expect(reader.column()).toBe(1);
@@ -51,7 +51,7 @@ describe("StringReader", function() {
 			});
 
 			it("has no effect if the reader is in its initial state", function() {
-				var reader = new Hyperjs.StringReader("ab");
+				var reader = new hjs.StringReader("ab");
 
 				expect(reader.isEOF()).toBe(false);
 				expect(reader.column()).toBe(1);
@@ -68,7 +68,7 @@ describe("StringReader", function() {
 		describe("when a position has been marked", function() {
 			it("returns the reader to the marked line and column", function() {
 				var text = "ab\ncd\nef";
-				var reader = new Hyperjs.StringReader(text);
+				var reader = new hjs.StringReader(text);
 
 				reader.readNextChar();
 				reader.readNextChar();
@@ -96,7 +96,7 @@ describe("StringReader", function() {
 
 			describe("and the reader is at the marked position", function() {
 				it("has no effect", function() {
-					var reader = new Hyperjs.StringReader("abcd");
+					var reader = new hjs.StringReader("abcd");
 
 					reader.readNextChar();
 					reader.readNextChar();
@@ -120,7 +120,7 @@ describe("StringReader", function() {
 		};
 
 		it("reads characters from a string one at a time", function() {
-			reader = new Hyperjs.StringReader("asdf");
+			reader = new hjs.StringReader("asdf");
 
 			expect(nc()).toEqual("a");
 			expect(nc()).toEqual("s");
@@ -129,14 +129,14 @@ describe("StringReader", function() {
 		});
 
 		it("returns the empty string when input has been exhausted", function() {
-			reader = new Hyperjs.StringReader("a");
+			reader = new hjs.StringReader("a");
 
 			expect(nc()).toEqual("a");
 			expect(nc()).toEqual("");
 		});
 
 		it("tracks column numbers across reads", function() {
-			reader = new Hyperjs.StringReader("abcd");
+			reader = new hjs.StringReader("abcd");
 
 			expect(reader.column()).toEqual(1);
 			
@@ -153,7 +153,7 @@ describe("StringReader", function() {
 		});
 
 		it("tracks line numbers across reads", function() {
-			reader = new Hyperjs.StringReader("asdf\njkl;");
+			reader = new hjs.StringReader("asdf\njkl;");
 
 			expect(reader.line()).toEqual(1);
 			nc();
@@ -166,7 +166,7 @@ describe("StringReader", function() {
 		});
 
 		it("sets the column back to 1 when the line increments", function() {
-			reader = new Hyperjs.StringReader("a\nb\n");
+			reader = new hjs.StringReader("a\nb\n");
 
 			expect(nc()).toEqual("a");
 			expect(reader.line()).toEqual(1);
@@ -186,7 +186,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\u2028' as a newline", function() {
-			reader = new Hyperjs.StringReader("\u2028");
+			reader = new hjs.StringReader("\u2028");
 
 			expect(reader.line()).toEqual(1);
 			nc();
@@ -194,7 +194,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\u2029' as a newline", function() {
-			reader = new Hyperjs.StringReader("\u2029");
+			reader = new hjs.StringReader("\u2029");
 
 			expect(reader.line()).toEqual(1);
 			nc();
@@ -202,7 +202,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\n' as a newline", function() {
-			reader = new Hyperjs.StringReader("\r");
+			reader = new hjs.StringReader("\r");
 
 			expect(reader.line()).toEqual(1);
 			nc();
@@ -210,7 +210,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\r' as a newline", function() {
-			reader = new Hyperjs.StringReader("\r");
+			reader = new hjs.StringReader("\r");
 
 			expect(reader.line()).toEqual(1);
 			nc();
@@ -218,7 +218,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\r\\n' as a single newline", function() {
-			reader = new Hyperjs.StringReader("\r\n");
+			reader = new hjs.StringReader("\r\n");
 
 			expect(reader.line()).toEqual(1);
 			expect(reader.column()).toEqual(1);
@@ -235,7 +235,7 @@ describe("StringReader", function() {
 
 	describe(".read", function() {
 		it("fills a buffer with a number of characters", function() {
-			var reader = new Hyperjs.StringReader("abcdefg");
+			var reader = new hjs.StringReader("abcdefg");
 			var buf = "";
 
 			reader.read(buf, 3);

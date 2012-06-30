@@ -10,7 +10,7 @@ describe("Lexer", function() {
 			var token = lexer.nextToken();
 
 			expect(token).not.toBeNull();
-			expect(token.type()).toEqual(hjs.Token.ID);
+			expect(token.type()).toEqual(hjs.TokenType.ID);
 			expect(token.text()).toEqual("idOfMe");
 			expect(token.source()).toEqual(source);
 		});
@@ -19,6 +19,77 @@ describe("Lexer", function() {
 	describe("when given a string containing an integer number", function() {
 		it("returns a token of type NUMBER", function() {
 			var source = "1234";
+		});
+	});
+
+	describe("__readNumber__", function() {
+		var lexer;
+		describe("when given the string '123'", function() {
+			var text = "123";
+
+			beforeEach(function() {
+				lexer = new hjs.Lexer(text);
+				lexer.reader.mark();
+				lexer.reader.readNextChar();
+			});
+
+			it("yields a token of type Number", function() {
+				expect(lexer.__readNumber__("1").type).toEqual(hjs.TokenType.NUMBER);
+			});
+
+			it ("yields a token with the text '123'", function() {
+				expect(lexer.__readNumber__("1").text).toEqual(text);
+			});
+		});
+
+		describe("when given the string '0'", function() {
+			it("yields a token of type Number", function() {
+
+			});
+
+			it("yields a token with the text '0'", function() {
+
+			});
+		});
+
+		describe("when given the string '0.1'", function() {
+			it("yields a token of type Number", function() {
+
+			});
+
+			it("yields a token with the text '0.1'", function() {
+
+			});
+		});
+
+		describe("when given the string '.1'", function() {
+			it("yields a token of type Number", function() {
+
+			});
+
+			it("yields a token with the text '.1'", function() {
+
+			});
+		});
+
+		describe("when given the string '1e10'", function() {
+			it("yields a token of type Number", function() {
+
+			});
+
+			it("yields a token with the text '1e10'", function() {
+
+			});
+		});
+
+		describe("when given the string '1e-2'", function() {
+			it("yields a token of type Number", function() {
+
+			});
+
+			it("yields a token with the text '1e-2'", function() {
+
+			});
 		});
 	});
 
@@ -32,7 +103,7 @@ describe("Lexer", function() {
 			});
 
 			it("yields a token of type ID", function() {
-				expect(lexer.__nextToken__().type).toEqual(hjs.Token.ID);
+				expect(lexer.__nextToken__().type).toEqual(hjs.TokenType.ID);
 			});
 
 			it("yields a token containing the text 'asdf'", function() {
@@ -41,8 +112,8 @@ describe("Lexer", function() {
 
 			describe("and when called twice", function() {
 				it("yields an ID token and a LINE_TERM token", function() {
-					expect(lexer.__nextToken__().type).toEqual(hjs.Token.ID);
-					expect(lexer.__nextToken__().type).toEqual(hjs.Token.LINE_TERM);
+					expect(lexer.__nextToken__().type).toEqual(hjs.TokenType.ID);
+					expect(lexer.__nextToken__().type).toEqual(hjs.TokenType.LINE_TERM);
 				});
 
 				it("yields a second token with an empty string for text", function() {
@@ -54,7 +125,7 @@ describe("Lexer", function() {
 
 		describe("when given the string '1.23'", function() {
 			it("yields a token of type NUMBER", function() {
-				
+
 			});
 
 			it("yields a token containing the text '1.23'.", function() {

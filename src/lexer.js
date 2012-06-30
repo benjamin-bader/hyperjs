@@ -59,6 +59,12 @@ if (typeof toplevel.hjs === "undefined") {
 		this.lastToken = null;
 	};
 
+	function LexError(message) {
+		this.message = message;
+	};
+
+	LexError.prototype = Error;
+
 	Lexer.prototype.__makeToken__ = function(type, token) {
 		return new hjs.Token(
 						type,
@@ -72,7 +78,7 @@ if (typeof toplevel.hjs === "undefined") {
 
 	Lexer.prototype.__readLineTerm__ = function(firstChar) {
 		if (firstChar == "") {
-			return this.__makeToken__(hjs.Token.LINE_TERM, "");
+			return this.__makeToken__(hjs.TokenType.LINE_TERM, "");
 		}
 
 		var numChars = 1;
@@ -83,11 +89,117 @@ if (typeof toplevel.hjs === "undefined") {
 
 		this.reader.reset();
 
-		return this.__makeToken__(hjs.Token.LINE_TERM, this.reader.read(numChars));
+		return this.__makeToken__(hjs.TokenType.LINE_TERM, this.reader.read(numChars));
 	};
 
 	Lexer.prototype.__readNumber__ = function(firstChar) {
+		var c = firstChar;
+		var numChars = 1;
+		var states = {
+			SIGN:          0,
+			INTEGRAL:      1,
+			DECIMAL:       2,
+			FRACTIONAL:    3,
+			EXPONENT_E:    4,
+			EXPONENT_SIGN: 5,
+			EXPONENT:      6,
+			COMPLETE:      7
+		};
 
+		var state = SIGN;
+
+		function signOrIntegral() {
+			if (c == '0') {
+				return states.DECIMAL;
+			}
+
+			if (c == '+' || c == '-' || DIGIT_PATTERN.test(c)) {
+				return states.INTEGRAL;
+			}
+
+			if (c == '.') {
+				return states.FRACTIONAL;
+			}
+
+			throw new LexError("Invalid number literal.");
+		};
+
+		function integral() {
+			if (DIGIT_PATTERN.test(c)) {
+				return states.INTEGRAL;
+			}
+
+			if (c == '.') {
+				return states.FRACTIONAL;
+			}
+
+			if (c == 'e' || c == 'E') {
+				return states.EXPONENT_SIGN;
+			}
+
+			return states.COMPLETE;
+		};
+
+		function decimal() {
+			if (c != '.') {
+				throw new LexError("Invalid number literal.");
+			}
+
+			return states.FRACTIONAL;
+		};
+
+		function fractional() {
+			if (c == 'e' || c == 'E') {
+				return states.EXPONENT_SIGN;
+			}
+
+			if (DIGIT_PATTERN.test(c)) {
+				return states.FRACTIONAL;
+			}
+
+			return states.COMPLETE;
+		};
+
+		function exponent_e() {
+			if (c != 'e' && c != 'E') {
+				throw new LexError("Invalid number literal.");
+			}
+
+			return states.EXPONENT_SIGN;
+		};
+
+		function exponent_sign() {
+			if (c == '+' || c == '-' || DIGIT_PATTERN.test(c)) {
+				return states.EXPONENT;
+			}
+
+			throw new LexError("Invalid number literal.");
+		};
+
+		function exponent() {
+			if (DIGIT_PATTERN.test(c)) {
+				return states.EXPONENT;
+			}
+
+			return states.COMPLETE;
+		};
+
+		var transitions = [signOrIntegral, integral, decimal, fractional, exponent_e, exponent_sign, exponent];
+
+		while (state != states.COMPLETE) {
+			state = transitions[state]();
+
+			if (state != states.COMPLETE) {
+				c = this.reader.readNextChar();
+				++numChars;
+			}
+		}
+
+		--numChars;
+		this.reader.reset();
+
+		var tok = this.reader.read(numChars);
+		return this.__makeToken__(hjs.TokenType.NUMBER, tok);
 	};
 
 	Lexer.prototype.__readHexLiteral__ = function(prefix) {
@@ -101,7 +213,7 @@ if (typeof toplevel.hjs === "undefined") {
 
 		var tok = this.reader.read(numChars);
 
-		return this.__makeToken__(hjs.Token.NUMBER, tok);
+		return this.__makeToken__(hjs.TokenType.NUMBER, tok);
 	};
 
 	Lexer.prototype.__readString__ = function(firstChar) {
@@ -134,7 +246,7 @@ if (typeof toplevel.hjs === "undefined") {
 			}
 		}
 
-		return this.__makeToken__(hjs.Token.STRING, tok);
+		return this.__makeToken__(hjs.TokenType.STRING, tok);
 	};
 
 	Lexer.prototype.__readId__ = function(firstChar) {
@@ -168,7 +280,7 @@ if (typeof toplevel.hjs === "undefined") {
 
 		if (isLineTerm(firstChar)) {
 			if (firstChar == "") {
-				return this.__makeToken__(hjs.Token.LINE_TERM, "");
+				return this.__makeToken__(hjs.TokenType.LINE_TERM, "");
 			} else {
 				var nextChar = firstChar;
 				var tok = nextChar;
@@ -178,7 +290,7 @@ if (typeof toplevel.hjs === "undefined") {
 					tok += nextChar;
 				}
 
-				return this.__makeToken__(hjs.Token.LINE_TERM, tok);
+				return this.__makeToken__(hjs.TokenType.LINE_TERM, tok);
 			}
 		}
 
@@ -211,7 +323,7 @@ if (typeof toplevel.hjs === "undefined") {
 				tok.push(this.reader.readNextChar());
 			}
 
-			return this.__makeToken__(hjs.Token.NUMBER, tok);
+			return this.__makeToken__(hjs.TokenType.NUMBER, tok);
 		}
 
 		// Identifier
@@ -227,7 +339,7 @@ if (typeof toplevel.hjs === "undefined") {
 				tok.push(this.reader.readNextChar());
 			}
 
-			return this.__makeToken__(hjs.Token.ID, tok);
+			return this.__makeToken__(hjs.TokenType.ID, tok);
 		}
 
 		// Comment
@@ -239,7 +351,7 @@ if (typeof toplevel.hjs === "undefined") {
 				tok.push(this.reader.readNextChar());
 			}
 
-			return this.__makeToken__(hjs.Token.COMMENT, tok);
+			return this.__makeToken__(hjs.TokenType.COMMENT, tok);
 		}
 
 		// Two-character comment initiator
@@ -255,11 +367,11 @@ if (typeof toplevel.hjs === "undefined") {
 					tok.push(this.reader.readNextChar());
 				}
 
-				return this.__makeToken__(hjs.Token.COMMENT, tok);
+				return this.__makeToken__(hjs.TokenType.COMMENT, tok);
 			} else {
 				this.reader.reset();
 				this.reader.readNextChar();
-				return this.__makeToken__(hjs.Token.SYMBOL, firstChar);
+				return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
 			}
 		}
 
@@ -291,11 +403,11 @@ if (typeof toplevel.hjs === "undefined") {
 					tok.push(this.reader.readNextChar());
 				}
 
-				return this.__makeToken__(hjs.Token.COMMENT, tok);
+				return this.__makeToken__(hjs.TokenType.COMMENT, tok);
 			} else {
 				this.reader.reset();
 				this.reader.readNextChar();
-				return this.__makeToken__(hjs.Token.SYMBOL, firstChar);
+				return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
 			}
 		}
 
@@ -316,33 +428,33 @@ if (typeof toplevel.hjs === "undefined") {
 						tok.push(this.reader.readNextChar());
 					}
 
-					return this.__makeToken__(hjs.Token.CONTINUATOR, tok);
+					return this.__makeToken__(hjs.TokenType.CONTINUATOR, tok);
 				} else if (!isWhitespace(nextChar)) {
 					this.reader.reset();
 					this.reader.readNextChar();
 
-					return this.__makeToken__(hjs.Token.SYMBOL, firstChar);
+					return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
 				}
 			}
 		}
 
 		// Whitespace
 		else if (isWhitespace(firstChar)) {
-			return this.__makeToken__(hjs.Token.WHITESPACE, firstChar);
+			return this.__makeToken__(hjs.TokenType.WHITESPACE, firstChar);
 		}
 
 		// Symbol token
 		else {
-			return this.__makeToken__(hjs.Token.SYMBOL, firstChar);
+			return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
 		}
 	};
 
 	Lexer.prototype.__assembleToken__ = function() {
 		var tok = this.__nextToken__();
 
-		while (tok.type == hjs.Token.COMMENT
-			|| tok.type == hjs.Token.CONTINUATOR
-			|| tok.type == hjs.Token.WHITESPACE) {
+		while (tok.type == hjs.TokenType.COMMENT
+			|| tok.type == hjs.TokenType.CONTINUATOR
+			|| tok.type == hjs.TokenType.WHITESPACE) {
 			var nextTok = this.__nextToken__();
 			nextTok.specialToken = tok;
 			tok = nextTok;
@@ -354,7 +466,7 @@ if (typeof toplevel.hjs === "undefined") {
 	Lexer.prototype.getToken = function() {
 		var tok = this.buffer.length > 0 ? buffer.unshift(1) : this.__assembleToken__();
 		if (this.lastToken != null) {
-			this.lastToken.next = tok;
+			this.lastTokenType.next = tok;
 		}
 
 		this.lastToken = tok;
@@ -387,5 +499,6 @@ if (typeof toplevel.hjs === "undefined") {
 	};
 
 	hjs.Lexer = Lexer;
+	hjs.LexError = LexError;
 
 })(toplevel.hjs);
