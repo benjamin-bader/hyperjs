@@ -4,6 +4,15 @@ hyper.js
 HyperCard rekindled - in Javascript!
 
 
+A great debt is owed to Rebecca Bettencourt and her OpenXION project, from which
+much inspiration and implementation guidance was drawn - particularly in the lexer
+and parser.
+
+http://www.openxion.org
+
+Notes
+==============================
+
 DEPS:
 	- jasmine for unit tests
 	- jasmine-headless-webkit for executing same
@@ -68,13 +77,13 @@ Runtime ideas:
 
 Lexer:
 	Produces a stream of HT tokens.  What are they?
-		KEYWORD of string * pos
 		ID of string * pos
 		STRING of string * pos
-		NUMERIC of Number * pos
-		OP of string * pos
-		HANDLER of string * pos
-		FUNCTION of string * pos
+		NUMBER of Number * pos
+		SYMBOL of string * pos
+		COMMENT of string * pos
+		WHITESPACE of string * pos
+		LINE_TERM of string * pos
 
 		... more?
 
