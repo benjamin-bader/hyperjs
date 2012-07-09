@@ -1,4 +1,6 @@
 *.sublime-project
 *.sublime-workspace
 .jhw-cache/
+bin/
 spec/javascripts/
+test/
