@@ -1,18 +1,38 @@
-;
+/**
+ * Copyright (c) 2012 Ben Bader
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
-var isCommonJs = typeof window === "undefined";
-var toplevel = isCommonJs ? exports : window;
-
-if (typeof toplevel.hjs === "undefined") {
-	toplevel.hjs = {};
-}
-
-(function(hjs) {
-	var UNI_LINE_SEPARATOR      = '\u2028';
-	var UNI_PARAGRAPH_SEPARATOR = '\u2029';
-	var CARRIAGE_RETURN         = '\r';
-	var LINE_FEED               = '\n';
+Hyper = (function(hjs) {
+	/** @const */ var UNI_LINE_SEPARATOR      = '\u2028';
+	/** @const */ var UNI_PARAGRAPH_SEPARATOR = '\u2029';
+	/** @const */ var CARRIAGE_RETURN         = '\r';
+	/** @const */ var LINE_FEED               = '\n';
 	
+	/**
+	 * Represents an object that can read a string, remembering positional
+	 * information.
+	 *
+	 * @constructor
+	 * @param {string} string The string to be read.
+	 */
 	function StringReader(string) {
 		this.len   = string.length;
 		this.pos   = 0;
@@ -27,22 +47,41 @@ if (typeof toplevel.hjs === "undefined") {
 		this.mlastCr = false;
 	};
 
+	StringReader.prototype = {
+		len: 0,
+		pos: 0,
+		col: 1,
+		line: 1,
+		mpos: 0,
+		mcol: 1,
+		mline: 1,
+		lastCr: false,
+		mlastCr: false,
+		text: ''
+	};
+
 	/**
 	 * Returns the current column.
+	 *
+	 * @return {number}
 	 */
-	StringReader.prototype.column = function() {
+	StringReader.prototype.getColumn = function() {
 		return this.col;
 	};
 
 	/**
 	 * Returns the current line.
+	 *
+	 * @return {number}
 	 */
-	StringReader.prototype.line = function() {
+	StringReader.prototype.getLine = function() {
 		return this.line;
 	};
 
 	/**
 	 * Returns the most recently-marked column.
+	 *
+	 * @return {number}
 	 */
 	StringReader.prototype.markedColumn = function() {
 		return this.mcol;
@@ -50,6 +89,8 @@ if (typeof toplevel.hjs === "undefined") {
 
 	/**
 	 * Returns the most recently-marked line.
+	 *
+	 * @return {number}
 	 */
 	StringReader.prototype.markedLine = function() {
 		return this.mline;
@@ -68,6 +109,8 @@ if (typeof toplevel.hjs === "undefined") {
 	/**
 	 * Returns a value indicating whether the reader has reached the end
 	 * of its input.
+	 *
+	 * @return {boolean}
 	 */
 	StringReader.prototype.isEOF = function() {
 		return this.pos >= this.len;
@@ -98,7 +141,7 @@ if (typeof toplevel.hjs === "undefined") {
 			this.lastCr = true;
 		} else if (ch == LINE_FEED) {
 			if (!this.lastCr) {
-				line++;
+				this.line++;
 			}
 
 			this.col = 1;
@@ -107,7 +150,7 @@ if (typeof toplevel.hjs === "undefined") {
 			this.col++;
 			this.lastCr = false;
 		}
-	}
+	};
 
 	/**
 	 * Reads a character from the input and returns it.  Returns the empty
@@ -135,8 +178,10 @@ if (typeof toplevel.hjs === "undefined") {
 		}
 
 		return tok;
-	}
+	};
 
 	hjs.StringReader = StringReader;
 
-})(toplevel.hjs);
+	return hjs;
+
+})(Hyper || {});

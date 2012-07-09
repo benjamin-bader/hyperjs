@@ -1,13 +1,26 @@
-;
+/**
+ * Copyright (c) 2012 Ben Bader
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
-var isCommonJs = typeof window === "undefined";
-var toplevel = isCommonJs ? exports : window;
-
-if (typeof toplevel.hjs === "undefined") {
-	toplevel.hjs = {};
-};
-
-(function(hjs) {
+Hyper = (function(hjs) {
 	/**
 	 * Defines the types of tokens emitted by the lexer.
 	 * @enum
@@ -63,18 +76,9 @@ if (typeof toplevel.hjs === "undefined") {
 		return this.text + "{" + this.beginLine + ":" + this.beginCol + "-" + this.endLine + ":" + this.endCol + "}";
 	};
 
-	// Constants
-	/*
-	Token.LINE_TERM   = 0;
-	Token.STRING      = 1;
-	Token.NUMBER      = 2;
-	Token.ID          = 3;
-	Token.SYMBOL      = 4;
-	Token.COMMENT     = 5;
-	Token.CONTINUATOR = 6;
-	Token.WHITESPACE  = 7;
-*/
 	// Exports
 	hjs.TokenType = TokenType;
 	hjs.Token = Token;
-})(toplevel.hjs);
+
+	return hjs;
+})(Hyper || {});
