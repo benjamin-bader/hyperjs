@@ -4,6 +4,35 @@ hyper.js
 HyperCard rekindled - in Javascript!
 
 
+A great debt is owed to Rebecca Bettencourt and her OpenXION project, from which
+much inspiration and implementation guidance was drawn - particularly in the lexer
+and parser.
+
+http://www.openxion.org
+
+Build Instructions
+==============================
+
+Hyper.js uses the Google Closure compiler, with Jake (powered by Node.js) as a build
+system.  Tests are run using Jasmine, currently via the jasmine-headless-webkit runner.
+Consequently, hacking requires Ruby (1.9.3 or greater) and Node.js (0.6.19 or greater).
+RVM is helpful, though not required; hyper.js provides its own .rvmrc and named gemset.
+
+brew install nodejs
+npm install jake
+brew install closure-compiler
+jake hs:build
+
+For testing:
+brew install qt
+Install RVM
+cd to project directory (answer 'y' to trust the .rvmrc file)
+(bundle exec) gem install jasmine-headless-webkit
+jake 
+
+Notes
+==============================
+
 DEPS:
 	- jasmine for unit tests
 	- jasmine-headless-webkit for executing same
@@ -68,13 +97,13 @@ Runtime ideas:
 
 Lexer:
 	Produces a stream of HT tokens.  What are they?
-		KEYWORD of string * pos
 		ID of string * pos
 		STRING of string * pos
-		NUMERIC of Number * pos
-		OP of string * pos
-		HANDLER of string * pos
-		FUNCTION of string * pos
+		NUMBER of Number * pos
+		SYMBOL of string * pos
+		COMMENT of string * pos
+		WHITESPACE of string * pos
+		LINE_TERM of string * pos
 
 		... more?
 
