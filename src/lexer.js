@@ -31,7 +31,7 @@ Hyper = (function(hjs, undefined) {
 	/** @const */ var DELIMITED_PATTERN = /∞|~/;
 
 	/** @const */
-	var escapes = {
+	var ESCAPES = {
 		'n': '\n',
 		't': '\t',
 		'r': '\r',
@@ -314,7 +314,7 @@ Hyper = (function(hjs, undefined) {
 				if (isLineTerm(nextChar))
 					break;
 				
-				var unescaped = escapes[nextChar];
+				var unescaped = ESCAPES[nextChar];
 
 				if (typeof unescaped !== 'undefined') {
 					tok += unescaped;
