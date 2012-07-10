@@ -1,4 +1,4 @@
-var Tok = Hyper.TokenType;
+var Tok = Hyper.Script.TokenType;
 
 describe("Token", function() {
 	it("has defined token types", function() {
@@ -10,10 +10,5 @@ describe("Token", function() {
 		expect(Tok.COMMENT).toBeDefined();
 		expect(Tok.CONTINUATOR).toBeDefined();
 		expect(Tok.WHITESPACE).toBeDefined();
-
-	});
-
-	it("remembers its position in the source text", function() {
-		var t = new Hyper.Token("");
 	});
 });

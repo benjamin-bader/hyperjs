@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-Hyper = (function(hjs, undefined) {
+Hyper.Script = (function(hs, undefined) {
 	/** @const */ var NUMBER_START_PATTERN = /\d|\./;
 	/** @const */ var DIGIT_PATTERN = /\d/;
 	/** @const */ var HEX_DIGIT_PATTERN = /[0-9a-fA-F]/;
@@ -92,7 +92,7 @@ Hyper = (function(hjs, undefined) {
 	function Lexer(source) {
 		this.source    = source;
 		this.pos       = 0;
-		this.reader    = new hjs.StringReader(source);
+		this.reader    = new hs.StringReader(source);
 		this.buffer    = [];
 		this.lastToken = null;
 	};
@@ -121,7 +121,7 @@ Hyper = (function(hjs, undefined) {
 	 * @return {Token} The constructed token.
 	 */
 	Lexer.prototype.__makeToken__ = function(type, token) {
-		return new hjs.Token(
+		return new hs.Token(
 						type,
 						token,
 						this.source,
@@ -139,7 +139,7 @@ Hyper = (function(hjs, undefined) {
 	 */
 	Lexer.prototype.__readLineTerm__ = function(firstChar) {
 		if (firstChar == "") {
-			return this.__makeToken__(hjs.TokenType.LINE_TERM, "");
+			return this.__makeToken__(hs.TokenType.LINE_TERM, "");
 		}
 
 		var numChars = 1;
@@ -150,7 +150,7 @@ Hyper = (function(hjs, undefined) {
 
 		this.reader.reset();
 
-		return this.__makeToken__(hjs.TokenType.LINE_TERM, this.reader.read(numChars));
+		return this.__makeToken__(hs.TokenType.LINE_TERM, this.reader.read(numChars));
 	};
 
 	/**
@@ -271,7 +271,7 @@ Hyper = (function(hjs, undefined) {
 		// At this point, we've read the number plus one extra char.  Decrement and return the token.
 		this.reader.reset();
 		
-		return this.__makeToken__(hjs.TokenType.NUMBER, this.reader.read(numChars - 1));
+		return this.__makeToken__(hs.TokenType.NUMBER, this.reader.read(numChars - 1));
 	};
 
 	Lexer.prototype.__readHexLiteral__ = function(prefix) {
@@ -285,7 +285,7 @@ Hyper = (function(hjs, undefined) {
 
 		var tok = this.reader.read(numChars);
 
-		return this.__makeToken__(hjs.TokenType.NUMBER, tok);
+		return this.__makeToken__(hs.TokenType.NUMBER, tok);
 	};
 
 	/**
@@ -326,7 +326,7 @@ Hyper = (function(hjs, undefined) {
 			}
 		}
 
-		return this.__makeToken__(hjs.TokenType.STRING, tok);
+		return this.__makeToken__(hs.TokenType.STRING, tok);
 	};
 
 	/**
@@ -344,7 +344,7 @@ Hyper = (function(hjs, undefined) {
 
 		this.reader.reset();
 
-		return this.__makeToken__(hjs.TokenType.ID, this.reader.read(numChars));
+		return this.__makeToken__(hs.TokenType.ID, this.reader.read(numChars));
 	};
 
 	/**
@@ -363,7 +363,7 @@ Hyper = (function(hjs, undefined) {
 
 		this.reader.reset();
 
-		return this.__makeToken__(hjs.TokenType.COMMENT, this.reader.read(numChars));
+		return this.__makeToken__(hs.TokenType.COMMENT, this.reader.read(numChars));
 	};
 
 	/**
@@ -387,7 +387,7 @@ Hyper = (function(hjs, undefined) {
 
 		this.reader.reset();
 
-		return this.__makeToken__(hjs.TokenType.COMMENT, this.reader.read(numChars));
+		return this.__makeToken__(hs.TokenType.COMMENT, this.reader.read(numChars));
 	};
 
 	/**
@@ -425,7 +425,7 @@ Hyper = (function(hjs, undefined) {
 
 		this.reader.reset();
 		
-		return this.__makeToken__(hjs.TokenType.COMMENT, this.reader.read(numChars));
+		return this.__makeToken__(hs.TokenType.COMMENT, this.reader.read(numChars));
 	};
 
 	Lexer.prototype.__readLineContinuation__ = function(firstChar) {
@@ -442,7 +442,7 @@ Hyper = (function(hjs, undefined) {
 
 				this.reader.reset();
 
-				return this.__makeToken__(hjs.TokenType.CONTINUATOR, this.reader.read(numChars));
+				return this.__makeToken__(hs.TokenType.CONTINUATOR, this.reader.read(numChars));
 			} else if (!isWhitespace(nextChar)) {
 				return null;
 			}
@@ -458,7 +458,7 @@ Hyper = (function(hjs, undefined) {
 
 		this.reader.reset();
 
-		return this.__makeToken__(hjs.TokenType.WHITESPACE, this.reader.read(numChars));
+		return this.__makeToken__(hs.TokenType.WHITESPACE, this.reader.read(numChars));
 	};
 
 	// The workhorse.  Who needs flex, anyways?
@@ -521,7 +521,7 @@ Hyper = (function(hjs, undefined) {
 			// Not a comment - must be a symbol then.
 			this.reader.reset();
 			this.reader.readNextChar();
-			return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
+			return this.__makeToken__(hs.TokenType.SYMBOL, firstChar);
 		}
 
 		// Begin-end delimited comment
@@ -534,7 +534,7 @@ Hyper = (function(hjs, undefined) {
 
 			this.reader.reset();
 			this.reader.readNextChar();
-			return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
+			return this.__makeToken__(hs.TokenType.SYMBOL, firstChar);
 		}
 
 		// Line continuation
@@ -548,7 +548,7 @@ Hyper = (function(hjs, undefined) {
 			// Not a continuation, so must be a symbol.
 			this.reader.reset();
 			this.reader.readNextChar();
-			return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
+			return this.__makeToken__(hs.TokenType.SYMBOL, firstChar);
 		}
 
 		// Whitespace
@@ -557,7 +557,7 @@ Hyper = (function(hjs, undefined) {
 		}
 
 		// Symbol token
-		return this.__makeToken__(hjs.TokenType.SYMBOL, firstChar);
+		return this.__makeToken__(hs.TokenType.SYMBOL, firstChar);
 	};
 
 	/**
@@ -569,9 +569,9 @@ Hyper = (function(hjs, undefined) {
 	Lexer.prototype.__assembleToken__ = function() {
 		var tok = this.__nextToken__();
 
-		while (tok.type == hjs.TokenType.COMMENT
-			|| tok.type == hjs.TokenType.CONTINUATOR
-			|| tok.type == hjs.TokenType.WHITESPACE) {
+		while (tok.type == hs.TokenType.COMMENT
+			|| tok.type == hs.TokenType.CONTINUATOR
+			|| tok.type == hs.TokenType.WHITESPACE) {
 			var nextTok = this.__nextToken__();
 			nextTok.specialToken = tok;
 			tok = nextTok;
@@ -586,7 +586,7 @@ Hyper = (function(hjs, undefined) {
 	 * @return {Token}
 	 */
 	Lexer.prototype.getToken = function() {
-		var tok = this.buffer.length > 0 ? this.buffer.unshift(1) : this.__assembleToken__();
+		var tok = this.buffer.length > 0 ? this.buffer.shift(1) : this.__assembleToken__();
 		if (this.lastToken != null) {
 			this.lastToken.next = tok;
 		}
@@ -603,7 +603,7 @@ Hyper = (function(hjs, undefined) {
 	 * @return {Token}
 	 */
 	Lexer.prototype.lookToken = function(pos) {
-		if (pos < 1) {
+		if (pos < 0) {
 			return this.lastToken;
 		}
 
@@ -642,9 +642,9 @@ Hyper = (function(hjs, undefined) {
 	};
 
 	// Export!
-	hjs.Lexer = Lexer;
-	hjs.LexError = LexError;
+	hs.Lexer = Lexer;
+	hs.LexError = LexError;
 
-	return hjs;
+	return hs;
 
-})(Hyper || {});
+})(Hyper.Script || {});

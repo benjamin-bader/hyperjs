@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-Hyper = (function(hjs) {
+Hyper.Script = (function(hjs) {
 	/**
 	 * Defines the types of tokens emitted by the lexer.
 	 * @enum
@@ -81,4 +81,4 @@ Hyper = (function(hjs) {
 	hjs.Token = Token;
 
 	return hjs;
-})(Hyper || {});
+})(Hyper.Script || {});

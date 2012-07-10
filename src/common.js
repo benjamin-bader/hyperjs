@@ -37,4 +37,6 @@ var Hyper = (function(hyper, undefined) {
 
 	hyper.debug = debug;
 
+	return hyper;
+
 })({});

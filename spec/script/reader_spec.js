@@ -3,22 +3,22 @@ describe("StringReader", function() {
 		expect(Hyper).toBeDefined();
 		expect(Hyper).not.toBeNull();
 
-		expect(Hyper.StringReader).not.toBeNull();
-		expect(Hyper.StringReader).toBeDefined();
-		expect(typeof Hyper.StringReader).toBe("function");
+		expect(Hyper.Script.StringReader).not.toBeNull();
+		expect(Hyper.Script.StringReader).toBeDefined();
+		expect(typeof Hyper.Script.StringReader).toBe("function");
 	});
 
 	it("has 1-based column numbering", function() {
-		expect(new Hyper.StringReader("a").getColumn()).toEqual(1);
+		expect(new Hyper.Script.StringReader("a").getColumn()).toEqual(1);
 	});
 
 	it("has 1-based line numbering", function() {
-		expect(new Hyper.StringReader("x").getLine()).toEqual(1);
+		expect(new Hyper.Script.StringReader("x").getLine()).toEqual(1);
 	});
 
 	describe(".isEOF", function() {
 		it("returns true when all input has been exhausted", function() {
-			var reader = new Hyper.StringReader("a");
+			var reader = new Hyper.Script.StringReader("a");
 
 			expect(reader.isEOF()).toBe(false);
 			reader.readNextChar();
@@ -29,7 +29,7 @@ describe("StringReader", function() {
 	describe(".reset", function() {
 		describe("when .mark has not been called", function() {
 			it("returns the reader to its initial state", function() {
-				var reader = new Hyper.StringReader("a\nc");
+				var reader = new Hyper.Script.StringReader("a\nc");
 
 				expect(reader.isEOF()).toBe(false);
 				expect(reader.getColumn()).toBe(1);
@@ -51,7 +51,7 @@ describe("StringReader", function() {
 			});
 
 			it("has no effect if the reader is in its initial state", function() {
-				var reader = new Hyper.StringReader("ab");
+				var reader = new Hyper.Script.StringReader("ab");
 
 				expect(reader.isEOF()).toBe(false);
 				expect(reader.getColumn()).toBe(1);
@@ -68,7 +68,7 @@ describe("StringReader", function() {
 		describe("when a position has been marked", function() {
 			it("returns the reader to the marked line and column", function() {
 				var text = "ab\ncd\nef";
-				var reader = new Hyper.StringReader(text);
+				var reader = new Hyper.Script.StringReader(text);
 
 				reader.readNextChar();
 				reader.readNextChar();
@@ -95,7 +95,7 @@ describe("StringReader", function() {
 
 			describe("and the reader is at the marked position", function() {
 				it("has no effect", function() {
-					var reader = new Hyper.StringReader("abcd");
+					var reader = new Hyper.Script.StringReader("abcd");
 
 					reader.readNextChar();
 					reader.readNextChar();
@@ -119,7 +119,7 @@ describe("StringReader", function() {
 		};
 
 		it("reads characters from a string one at a time", function() {
-			reader = new Hyper.StringReader("asdf");
+			reader = new Hyper.Script.StringReader("asdf");
 
 			expect(nc()).toEqual("a");
 			expect(nc()).toEqual("s");
@@ -128,14 +128,14 @@ describe("StringReader", function() {
 		});
 
 		it("returns the empty string when input has been exhausted", function() {
-			reader = new Hyper.StringReader("a");
+			reader = new Hyper.Script.StringReader("a");
 
 			expect(nc()).toEqual("a");
 			expect(nc()).toEqual("");
 		});
 
 		it("tracks column numbers across reads", function() {
-			reader = new Hyper.StringReader("abcd");
+			reader = new Hyper.Script.StringReader("abcd");
 
 			expect(reader.getColumn()).toEqual(1);
 			
@@ -152,7 +152,7 @@ describe("StringReader", function() {
 		});
 
 		it("tracks line numbers across reads", function() {
-			reader = new Hyper.StringReader("asdf\njkl;");
+			reader = new Hyper.Script.StringReader("asdf\njkl;");
 
 			expect(reader.getLine()).toEqual(1);
 			nc();
@@ -165,7 +165,7 @@ describe("StringReader", function() {
 		});
 
 		it("sets the column back to 1 when the line increments", function() {
-			reader = new Hyper.StringReader("a\nb\n");
+			reader = new Hyper.Script.StringReader("a\nb\n");
 
 			expect(nc()).toEqual("a");
 			expect(reader.getLine()).toEqual(1);
@@ -185,7 +185,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\u2028' as a newline", function() {
-			reader = new Hyper.StringReader("\u2028");
+			reader = new Hyper.Script.StringReader("\u2028");
 
 			expect(reader.getLine()).toEqual(1);
 			nc();
@@ -193,7 +193,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\u2029' as a newline", function() {
-			reader = new Hyper.StringReader("\u2029");
+			reader = new Hyper.Script.StringReader("\u2029");
 
 			expect(reader.getLine()).toEqual(1);
 			nc();
@@ -201,7 +201,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\n' as a newline", function() {
-			reader = new Hyper.StringReader("\r");
+			reader = new Hyper.Script.StringReader("\r");
 
 			expect(reader.getLine()).toEqual(1);
 			nc();
@@ -209,7 +209,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\r' as a newline", function() {
-			reader = new Hyper.StringReader("\r");
+			reader = new Hyper.Script.StringReader("\r");
 
 			expect(reader.getLine()).toEqual(1);
 			nc();
@@ -217,7 +217,7 @@ describe("StringReader", function() {
 		});
 
 		it("treats '\\r\\n' as a single newline", function() {
-			reader = new Hyper.StringReader("\r\n");
+			reader = new Hyper.Script.StringReader("\r\n");
 
 			expect(reader.getLine()).toEqual(1);
 			expect(reader.getColumn()).toEqual(1);
@@ -236,7 +236,7 @@ describe("StringReader", function() {
 		var reader;
 
 		beforeEach(function() {
-			reader = new Hyper.StringReader("Now is the time for all good men to come to the aid of their country.");
+			reader = new Hyper.Script.StringReader("Now is the time for all good men to come to the aid of their country.");
 		});
 
 		it("reads an arbitrarily-sized chunk of the input starting at the current position", function() {

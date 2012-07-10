@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-Hyper = (function(hjs) {
+Hyper.Script = (function(hs) {
 	/** @const */ var UNI_LINE_SEPARATOR      = '\u2028';
 	/** @const */ var UNI_PARAGRAPH_SEPARATOR = '\u2029';
 	/** @const */ var CARRIAGE_RETURN         = '\r';
@@ -180,8 +180,8 @@ Hyper = (function(hjs) {
 		return tok;
 	};
 
-	hjs.StringReader = StringReader;
+	hs.StringReader = StringReader;
 
-	return hjs;
+	return hs;
 
-})(Hyper || {});
+})(Hyper.Script || {});

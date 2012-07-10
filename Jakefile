@@ -2,15 +2,15 @@ var fs = require('fs');
 
 var packOrder = [
 	'src/common.js',
-	'src/tokens.js',
-	'src/reader.js',
-	'src/lexer.js'
+	'src/script/tokens.js',
+	'src/script/reader.js',
+	'src/script/lexer.js'
 ];
 
 var testFiles = [
-	'spec/tokens_spec.js',
-	'spec/reader_spec.js',
-	'spec/lexer_spec.js'
+	'spec/script/tokens_spec.js',
+	'spec/script/reader_spec.js',
+	'spec/script/lexer_spec.js'
 ];
 
 /**
