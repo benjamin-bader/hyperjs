@@ -65,8 +65,8 @@ Hyper = (function(hjs) {
 	 * @return {boolean}
 	 */
 	Token.prototype.isEOF = function() {
-		return (this.type == Token.LINE_TERM && (this.text == null || this.text == ''))
-			|| (this.type == Token.ID && this.text != null && this.text == "__END__");
+		return (this.type == TokenType.LINE_TERM && (this.text || '') == '')
+			|| (this.type == TokenType.ID && this.text != null && this.text == "__END__");
 	};
 
 	/**

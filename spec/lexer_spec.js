@@ -457,6 +457,12 @@ describe("Lexer", function() {
 				expect(lexer.__assembleToken__().type).toEqual(Hyper.TokenType.NUMBER);
 			});
 
+			it("yields second a SYMBOL token", function() {
+				lexer.__assembleToken__();
+
+				expect(lexer.__assembleToken__().type).toEqual(Hyper.TokenType.SYMBOL);
+			});
+
 			it("yields a token with the previous whitespace linked", function() {
 				var tok = lexer.__assembleToken__();
 
@@ -465,11 +471,48 @@ describe("Lexer", function() {
 				expect(tok.specialToken.type).toEqual(Hyper.TokenType.WHITESPACE);
 				expect(tok.specialToken.specialToken).toBeDefined();
 				expect(tok.specialToken.specialToken.type).toEqual(Hyper.TokenType.COMMENT);
+				expect(tok.specialToken.specialToken.specialToken).toBeDefined();
+				expect(tok.specialToken.specialToken.specialToken.type).toEqual(Hyper.TokenType.WHITESPACE);
+			});
+		});
+
+		describe("when given the text 'on mouseUp\nanswer \"hello, Hyper.js!\"\nend mouseUp'", function() {
+			it("yields the only ID tokens, and one STRING token.", function() {
+				var tok;
+				var expectedTokenCount = 8;
+				var actualTokenCount = 0;
+				var types = [Hyper.TokenType.ID,
+							 Hyper.TokenType.ID,
+							 Hyper.TokenType.LINE_TERM,
+							 Hyper.TokenType.ID,
+							 Hyper.TokenType.STRING,
+							 Hyper.TokenType.LINE_TERM,
+							 Hyper.TokenType.ID,
+							 Hyper.TokenType.ID];
+				
+				var texts = ["on", "mouseUp", '\n', "answer", '"hello, Hyper.js!"', "\n", "end", "mouseUp"];
+				var lexer = new Hyper.Lexer('on mouseUp\nanswer "hello, Hyper.js!"\nend mouseUp');
+
+				while (true) {
+					tok = lexer.__assembleToken__();
+
+					if (tok.isEOF()) {
+						break;
+					}
+
+					++actualTokenCount;
+
+					expect(tok.type).toEqual(types[actualTokenCount - 1]);
+					expect(tok.text).toEqual(texts[actualTokenCount - 1]);
+				}
+
+				expect(actualTokenCount).toEqual(expectedTokenCount);
 			});
 		});
 	});
 
 	describe(".getToken", function() {
 		expect(1).toEqual(2);
+		// Something to the effect of "behaves like the above but drawing from buffer where applicable".
 	});
 });
