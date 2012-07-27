@@ -3,6 +3,26 @@ describe("Lexer", function() {
 		expect(true).toBe(true);
 	});
 
+	describe(".buffer", function() {
+		var lexer;
+
+		beforeEach(function() {
+			lexer = new Hyper.Script.Lexer("oh hai there");
+		});
+
+		it("is always defined.", function() {
+			expect(lexer.buffer).toBeDefined();
+		});
+
+		it("is an array", function() {
+			expect(lexer.buffer instanceof Array).toEqual(true);
+		});
+
+		it("is empty by default", function() {
+			expect(lexer.buffer.length).toEqual(0);
+		});
+	});
+
 	describe("when given a string containing a valid identifier", function() {
 		it("returns token of type ID", function() {
 			var source = "idOfMe";
@@ -16,7 +36,7 @@ describe("Lexer", function() {
 		});
 	});
 
-	describe(".__readNumber__", function() {
+	describe(".__readNumber__()", function() {
 		var lexer;
 		var text;
 
@@ -162,7 +182,7 @@ describe("Lexer", function() {
 		});
 	});
 
-	describe(".__nextToken__", function() {
+	describe(".__nextToken__()", function() {
 		var text, lexer;
 
 		describe("when given the string 'asdf'", function() {
@@ -201,7 +221,6 @@ describe("Lexer", function() {
 			});
 
 			it("yields a token of type CONTINUATOR", function() {
-				console.log("testing...")
 				expect(lexer.__nextToken__().type).toEqual(Hyper.Script.TokenType.CONTINUATOR);
 			})
 		})
@@ -384,7 +403,7 @@ describe("Lexer", function() {
 		});
 	});
 
-	describe(".__assembleToken__", function() {
+	describe(".__assembleToken__()", function() {
 		var text, lexer;
 
 		it("returns only semantically-meaningful tokens", function() {
@@ -470,7 +489,7 @@ describe("Lexer", function() {
 		});
 	});
 
-	describe(".lookToken", function() {
+	describe(".lookToken()", function() {
 		var text, lexer;
 
 		beforeEach(function() {
@@ -483,7 +502,7 @@ describe("Lexer", function() {
 			expect(lexer.lookToken(1).type).toEqual(Hyper.Script.TokenType.ID);
 			expect(lexer.lookToken(2).type).toEqual(Hyper.Script.TokenType.NUMBER);
 			expect(lexer.lookToken(3).type).toEqual(Hyper.Script.TokenType.LINE_TERM);
-			expect(lexer.lookToken(3).specialToken).toBeDefined;
+			expect(lexer.lookToken(3).specialToken).toBeDefined();
 			expect(lexer.lookToken(3).specialToken.type).toEqual(Hyper.Script.TokenType.COMMENT);
 		})
 
@@ -513,6 +532,14 @@ describe("Lexer", function() {
 				expect(lexer.lookToken(7).type).toEqual(Hyper.Script.TokenType.NUMBER);
 				expect(lexer.lookToken(7).text).toEqual("2.0");
 			});
+
+			it("populates the lexer's look-ahead buffer.", function() {
+				expect(lexer.buffer.length).toEqual(0);
+
+				lexer.lookToken(2);
+
+				expect(lexer.buffer.length).toEqual(2);
+			});
 		});
 	});
 
@@ -524,14 +551,16 @@ describe("Lexer", function() {
 		});
 
 		describe("when .lookToken(n) has been called", function() {
+			var LOOK_COUNT = 2;
+
 			beforeEach(function() {
-				lexer.lookToken(2);
+				lexer.lookToken(LOOK_COUNT);
 			});
 
 			it("returns tokens from the look-buffer and not from the source text", function() {
-				expect(lexer.buffer.length).toEqual(1);
+				expect(lexer.buffer.length).toEqual(2);
 				expect(lexer.getToken().text).toEqual("go");
-				expect(lexer.buffer.length).toEqual(0);
+				expect(lexer.buffer.length).toEqual(1);
 			});
 		});
 	});

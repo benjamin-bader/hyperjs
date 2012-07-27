@@ -398,7 +398,7 @@ Hyper.Script = (function(hs, undefined) {
 	 * @param {string} firstChar
 	 * @return {Token} A COMMENT token, or null if delimiters were wrong.
 	 */
-	Lexer.prototype.__readBoundedComment__ = function(firstChar) {
+	Lexer.prototype.__readDelimitedComment__ = function(firstChar) {
 		var numChars = 2;
 		var nextChar = this.reader.readNextChar();
 
@@ -461,10 +461,6 @@ Hyper.Script = (function(hs, undefined) {
 		return this.__makeToken__(hs.TokenType.WHITESPACE, this.reader.read(numChars));
 	};
 
-	// The workhorse.  Who needs flex, anyways?
-	// My sincere thanks to Rebecca Bettencourt for doing
-	// the hard stuff.
-	
 	/**
 	 * Reads the next token from the lexer's source.
 	 *
@@ -526,12 +522,13 @@ Hyper.Script = (function(hs, undefined) {
 
 		// Begin-end delimited comment
 		if (DELIMITED_PATTERN.test(firstChar)) {
-			var maybeCommentToken = this.__readBoundedComment__(firstChar);
+			var maybeCommentToken = this.__readDelimitedComment__(firstChar);
 
 			if (maybeCommentToken != null) {
 				return maybeCommentToken;
 			}
 
+			// Not a comment - treat the delimiter as a symbol.
 			this.reader.reset();
 			this.reader.readNextChar();
 			return this.__makeToken__(hs.TokenType.SYMBOL, firstChar);
