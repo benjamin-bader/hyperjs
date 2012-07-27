@@ -4,3 +4,4 @@
 bin/
 spec/javascripts/
 test/
+test.case.js
