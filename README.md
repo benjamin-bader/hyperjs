@@ -13,22 +13,24 @@ http://www.openxion.org
 Build Instructions
 ==============================
 
-Hyper.js uses the Google Closure compiler, with Jake (powered by Node.js) as a build
-system.  Tests are run using Jasmine, currently via the jasmine-headless-webkit runner.
-Consequently, hacking requires Ruby (1.9.3 or greater) and Node.js (0.6.19 or greater).
+Hyper.js uses the Google Closure compiler for extra awesomeness.
+Tests are run using Jasmine, currently via the jasmine-headless-webkit runner; consequently,
+hacking requires Ruby (2.0.0 or greater) and make.
 RVM is helpful, though not required; hyper.js provides its own .rvmrc and named gemset.
 
-brew install nodejs
-npm install jake
+```
 brew install closure-compiler
-jake hs:build
+make all
+```
 
 For testing:
+```
 brew install qt
-Install RVM
 cd to project directory (answer 'y' to trust the .rvmrc file)
-(bundle exec) gem install jasmine-headless-webkit
-jake 
+bundle install
+jasmine init
+make test
+```
 
 Notes
 ==============================
@@ -36,8 +38,6 @@ Notes
 DEPS:
 	- jasmine for unit tests
 	- jasmine-headless-webkit for executing same
-	- jake for building
-		- nodejs for jake
 	- Google Closure for the special sauce?
 
 TODO:

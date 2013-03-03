@@ -5,3 +5,5 @@ bin/
 spec/javascripts/
 test/
 test.case.js
+public/
+Rakefile
