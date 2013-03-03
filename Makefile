@@ -7,8 +7,7 @@ CLEVEL = SIMPLE_OPTIMIZATIONS
 CFLAGS = --compilation-level=$(CLEVEL) --js_output_file=$(LIB)
 COMPILE = closure-compiler $(CFLAGS)
 
-FILES := common.js trie.js script/tokens.js script/reader.js script/lexer.js
-SOURCES := $(addprefix src/,$(FILES))
+SOURCES := $(shell cat BUILD_ORDER | tr '\n' ' ')
 
 clean:
 	@if [ -d $(OUTDIR) ]; then rm -rf $(OUTDIR); fi

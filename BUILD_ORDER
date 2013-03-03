@@ -1,0 +1,5 @@
+src/common.js
+src/trie.js
+src/script/tokens.js
+src/script/reader.js
+src/script/lexer.js
