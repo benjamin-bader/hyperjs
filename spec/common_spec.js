@@ -1,53 +1,53 @@
 describe("Array.prototype", function() {
-	describe(".map", function() {
-		it("should be defined", function() {
-			expect(Array.prototype.map).toBeDefined();
-		});
+  describe(".map", function() {
+    it("should be defined", function() {
+      expect(Array.prototype.map).toBeDefined();
+    });
 
-		it("should be a function", function() {
-			expect(typeof Array.prototype.map).toBe('function');
-		});
+    it("should be a function", function() {
+      expect(typeof Array.prototype.map).toBe('function');
+    });
 
-		it("applies each element of the array to a mapping function, returning a new array composed of the results", function() {
-			var arr = [2, 4, 6, 8, 10];
+    it("applies each element of the array to a mapping function, returning a new array composed of the results", function() {
+      var arr = [2, 4, 6, 8, 10];
 
-			expect(arr.map(function(x) { return (x + 1).toString(); })).toEqual(["3", "5", "7", "9", "11"]);
-		});
-	});
+      expect(arr.map(function(x) { return (x + 1).toString(); })).toEqual(["3", "5", "7", "9", "11"]);
+    });
+  });
 
-	describe(".zip", function() {
-		it("should be defined", function() {
-			expect(Array.prototype.zip).toBeDefined();
-		});
+  describe(".zip", function() {
+    it("should be defined", function() {
+      expect(Array.prototype.zip).toBeDefined();
+    });
 
-		it("should be a function", function() {
-			expect(typeof Array.prototype.zip).toBe('function');
-		});
+    it("should be a function", function() {
+      expect(typeof Array.prototype.zip).toBe('function');
+    });
 
-		it("combines two arrays into one array of tuples", function() {
-			var arrayOne = [1, 2, 3, 4, 5, 6];
-			var arrayTwo = [7, 8, 9, 10, 11, 12];
+    it("combines two arrays into one array of tuples", function() {
+      var arrayOne = [1, 2, 3, 4, 5, 6];
+      var arrayTwo = [7, 8, 9, 10, 11, 12];
 
-			expect(arrayOne.zip(arrayTwo)).toEqual([[1, 7], [2, 8], [3, 9], [4, 10], [5, 11], [6, 12]]);
-		});
+      expect(arrayOne.zip(arrayTwo)).toEqual([[1, 7], [2, 8], [3, 9], [4, 10], [5, 11], [6, 12]]);
+    });
 
-		it("accepts a mapping function whose output is used in place of tuples", function() {
-			var arrayOne = [1, 2, 3, 4, 5, 6];
-			var arrayTwo = [7, 8, 9, 10, 11, 12];
-			var mapfn = function(x, y) { return x + y; };
+    it("accepts a mapping function whose output is used in place of tuples", function() {
+      var arrayOne = [1, 2, 3, 4, 5, 6];
+      var arrayTwo = [7, 8, 9, 10, 11, 12];
+      var mapfn = function(x, y) { return x + y; };
 
-			expect(arrayOne.zip(arrayTwo, mapfn)).toEqual([8, 10, 12, 14, 16, 18]);
-		});
+      expect(arrayOne.zip(arrayTwo, mapfn)).toEqual([8, 10, 12, 14, 16, 18]);
+    });
 
-		it("accepts a parameter to use as the value of 'this' inside of a given mapping function", function() {
-			var arrayOne = [1, 2, 3, 4, 5, 6];
-			var arrayTwo = [7, 8, 9, 10, 11, 12];
-			var thisArg = { value: 10 };
-			var mapfn = function(x, y) { return x + y + this.value; };
+    it("accepts a parameter to use as the value of 'this' inside of a given mapping function", function() {
+      var arrayOne = [1, 2, 3, 4, 5, 6];
+      var arrayTwo = [7, 8, 9, 10, 11, 12];
+      var thisArg = { value: 10 };
+      var mapfn = function(x, y) { return x + y + this.value; };
 
-			expect(arrayOne.zip(arrayTwo, mapfn, thisArg)).toEqual([18, 20, 22, 24, 26, 28]);
-		});
-	});
+      expect(arrayOne.zip(arrayTwo, mapfn, thisArg)).toEqual([18, 20, 22, 24, 26, 28]);
+    });
+  });
 
 	describe(".max", function() {
 		it("should be defined", function() {
@@ -255,4 +255,33 @@ describe("Array.prototype", function() {
 			expect(array.sum()).toEqual(15);
 		});
 	});
+});
+
+describe("Hyper.inherit", function() {
+  var Parent, Child;
+
+  beforeEach(function() {
+    Parent = function() {};
+    Parent.prototype.foo = function() {};
+
+    Child = function() {};
+
+    Hyper.inherit(Parent, Child);
+  });
+
+  it("adds the parent to the child's prototype chain", function() {
+    var c = new Child();
+    expect(c instanceof Parent).toBeTruthy();
+  });
+
+  it("implements inheritance", function() {
+    var c = new Child();
+    spyOn(Parent.prototype, 'foo');
+    c.foo();
+    expect(Parent.prototype.foo).toHaveBeenCalled();
+  });
+
+  it("sets the child's constructor to itself.", function() {
+     expect(Child.prototype.constructor).toBe(Child);
+  });
 });
