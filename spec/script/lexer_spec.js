@@ -292,6 +292,23 @@ describe("Lexer", function() {
 				});
 			});
 
+      describe("beginning with '#' and not followed by a newline", function() {
+        beforeEach(function() {
+          text = "# this is some comment that isn't actually very useful";
+          lexer = new Hyper.Script.Lexer(text);
+        });
+
+        it("by producing a token of type COMMENT", function() {
+          var token = lexer.__nextToken__();
+          expect(token.type).toEqual(Hyper.Script.TokenType.COMMENT);
+        });
+
+        it("by producing a token with the text from the comment character to the end of input", function() {
+          var token = lexer.__nextToken__();
+          expect(token.text).toEqual(text);
+        });
+      });
+
 			describe("beginning with '\u2014'", function() {
 				beforeEach(function() {
 					text = "\u2014 this is some comment that isn't actually very useful\n";

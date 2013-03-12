@@ -1,7 +1,6 @@
 OUTDIR=bin
 LIB=$(OUTDIR)/hyper.js
 CATTED=$(OUTDIR)/catted.js
-SPECS := $(shell find spec -type f -name "*.js")
 
 CLEVEL = SIMPLE_OPTIMIZATIONS
 CFLAGS = --compilation_level $(CLEVEL) --js_output_file $(LIB)
@@ -19,16 +18,16 @@ build: $(LIB)
 $(LIB): $(CATTED)
 	$(COMPILE) --js $<
 
-test: $(CATTED) $(SPECS)
-	for FILE in $(SPECS); do > test.js; cat $(CATTED) > test.js; cat $$FILE >> test.js; jasmine-headless-webkit test.js && rm test.js; done
+test: $(CATTED)
+	@jasmine-headless-webkit -j spec/jasmine.yml
 
-test-compiled: $(LIB) $(SPECS)
-	for FILE in $(SPECS); do > test.js; cat $(LIB) > test.js; cat $$FILE >> test.js; jasmine-headless-webkit test.js && rm test.js; done
+test-compiled: $(LIB)
+	@jasmine-headless-webkit -j spec/jasmine.yml
 
 $(CATTED): $(SOURCES) | $(OUTDIR)
 	@> $@
 	@for FILE in $(SOURCES); do cat $$FILE >> $@; done
 
 $(OUTDIR):
-	test -d $@ || mkdir $@
+	@test -d $@ || mkdir $@
 

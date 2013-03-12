@@ -57,6 +57,7 @@ Hyper.Script = (function(hs, undefined) {
 
 	/**
 	 * Returns true if the given character could be part of an identifier (but not the first character).
+	 * @param {string} A single-character string to test.
 	 * @return {boolean}
 	 */
 	function isIdPart(c) {
@@ -83,6 +84,14 @@ Hyper.Script = (function(hs, undefined) {
 	};
 
 	/**
+	 * Returns true if the given character is a hexadecimal digit.
+	 * @return {boolean}
+	 */
+	function isHexDigit(c) {
+		return HEX_DIGIT_PATTERN.test(c);
+	};
+
+	/**
 	 * Represents an object that can read HyperTalk and produce lexing tokens
 	 * suitable for use by our HyperTalk parser.
 	 *
@@ -90,6 +99,10 @@ Hyper.Script = (function(hs, undefined) {
 	 * @param {string} source The HyperTalk script to be lexed.
 	 */
 	function Lexer(source) {
+    if (!(this instanceof Lexer)) {
+      return new Lexer(source);
+    }
+
 		this.source    = source;
 		this.pos       = 0;
 		this.reader    = new hs.StringReader(source);
@@ -112,6 +125,7 @@ Hyper.Script = (function(hs, undefined) {
 
 	LexError.prototype = new Error("Could not understand your HyperTalk.");
 	LexError.prototype.name = "LexError";
+  LexError.prototype.constructor = LexError;
 
 	/**
 	 * A helper function that constructs a lexer token of a given type and content.
@@ -277,7 +291,7 @@ Hyper.Script = (function(hs, undefined) {
 	Lexer.prototype.__readHexLiteral__ = function(prefix) {
 		var numChars = prefix.length;
 
-		while (HEX_DIGIT_PATTERN.test(this.reader.readNextChar())) {
+		while (isHexDigit(this.reader.readNextChar())) {
 			++numChars;
 		}
 
