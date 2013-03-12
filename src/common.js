@@ -174,6 +174,13 @@ var Hyper = (function(hyper, undefined) {
 
 	hyper.debug = HYPER_DEBUG ? debug : function() {};
 
+  hyper.inherit = function(Parent, Child) {
+    var surrogate = function() {};
+    surrogate.prototype = Parent.prototype;
+    Child.prototype = new surrogate();
+    Child.prototype.constructor = Child;
+  };
+
 	return hyper;
 
 })({});
