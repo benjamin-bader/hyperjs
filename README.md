@@ -13,9 +13,9 @@ http://www.openxion.org
 Build Instructions
 ==============================
 
-Hyper.js uses the Google Closure compiler for extra awesomeness.
+Hyper.js is built using good old make and uses the Google Closure compiler for extra awesomeness.
 Tests are run using Jasmine, currently via the jasmine-headless-webkit runner; consequently,
-hacking requires Ruby (2.0.0 or greater) and make.
+hacking requires Ruby (2.0.0 or greater).
 RVM is helpful, though not required; hyper.js provides its own .rvmrc and named gemset.
 
 ```
@@ -28,7 +28,6 @@ For testing:
 brew install qt
 cd to project directory (answer 'y' to trust the .rvmrc file)
 bundle install
-jasmine init
 make test
 ```
 
@@ -36,9 +35,9 @@ Notes
 ==============================
 
 DEPS:
-	- jasmine for unit tests
-	- jasmine-headless-webkit for executing same
-	- Google Closure for the special sauce?
+	* jasmine for unit tests
+	* jasmine-headless-webkit for executing same
+    * ruby (2.0.0 and greater)
 
 TODO:
 * Investigate CI solutions.  Will TravisCI work with JS-exclusive projects?  Run Jasmine specs?  Other tests?
@@ -111,3 +110,25 @@ Parser:
 	Consumes HT tokens and produces statements
 	Statements contain expressions - no top-level exprs?
 
+AST:
+
+Script := [HsDecl]
+
+HsDecl := Handler | Function
+
+Function := 'function' Identifier ParamList [Statement] 'end'
+Handler := 'on' Identifier ParamList [Statement] 'end'
+
+ParamList := '(' [Identifier] ')'
+
+Statement := Command | Expression
+
+Expression :=
+  | ChunkExpression
+  | BinaryExpression
+  | ConstantExpression
+  | ...
+
+ConstantExpression :=
+  | '"' (any text) '"'
+  | (any number)
