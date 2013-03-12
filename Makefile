@@ -1,7 +1,7 @@
 OUTDIR=bin
 LIB=$(OUTDIR)/hyper.js
 CATTED=$(OUTDIR)/catted.js
-SPECS = $(shell find spec -type f -name *.js)
+SPECS := $(shell find spec -type f -name "*.js")
 
 CLEVEL = SIMPLE_OPTIMIZATIONS
 CFLAGS = --compilation_level $(CLEVEL) --js_output_file $(LIB)
