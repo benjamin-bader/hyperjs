@@ -16,11 +16,191 @@
   };
 
   /**
-   * Transforms the parse tree under the current node into a simpler form,
-   * if possible.  Must be implemented in node subclasses.
+   * Represents a function definition.
+   * @constructor
+   * @param {Span} The region of the source text comprising this function.
+   * @param {string} The name of this function[
+   * @param {Array.<string>} The list of function arguments, if any.
+   * @param {Array.<StatementNode>} The statements comprising this function.
    */
-  Node.prototype.simplify = function() {
-    throw new Error("Not implemented!");
+  function FunctionNode(span, name, args, statements) {
+    if (!(this instanceof FunctionNode)) {
+      return new FunctionNode(span, name, args, statements);
+    }
+
+    Node.call(this, span);
+    this.name_ = name;
+    this.args_ = args;
+    this.statements_ = statements;
+  };
+
+  Hyper.inherit(Node, FunctionNode);
+
+  FunctionNode.prototype.getName = function() {
+    return this.name_;
+  };
+
+  FunctionNode.prototype.getArgs = function() {
+    return this.args_;
+  };
+
+  FunctionNode.prototype.getStatements = function() {
+    return this.statements_;
+  };
+
+  /**
+   * Represents a message handler.
+   * @constructor
+   * @param {Span} The region of the source script comprising this message handler.
+   * @parem {string} The name of the message handled.
+   * @param {Array.<string>} The list of handler arguments, if any.
+   * @param {Array.<StatementNode>} The statements comprising this handler.
+   */
+  function MessageHandlerNode(span, name, args, statements) {
+    if (!(this instanceof MessageHandlerNode)) {
+      return new MessageHandlerNode(span, name, args, statements);
+    }
+
+    Node.call(this, span);
+    this.name_ = name;
+    this.args_ = args;
+    this.statements_ = statements;
+  };
+
+  Hyper.inherit(Node, MessageHandlerNode);
+
+  MessageHandlerNode.prototype.getName = function() {
+    return this.name_;
+  };
+
+  MessageHandlerNode.prototype.getArgs = function() {
+    return this.args_;
+  };
+
+  MessageHandlerNode.prototype.getStatements = function() {
+    return this.statements_;
+  };
+
+  MessageHandlerNode.prototype.simplify = function() {
+    var stmts = this.getStatements();
+    for (var i = 0, len = stmts.length; i < len; ++i) {
+      stmts[i].simplify();
+    }
+  };
+
+  function StatementNode(span) {
+    if (!(this instanceof StatementNode)) {
+      return new StatementNode(span);
+    }
+
+    Node.call(this, span);
+  };
+
+  Hyper.inherit(Node, StatementNode);
+
+  function IfStatementNode(span, conditionExpr, ifStatements, elseStatements) {
+    if (!(this instanceof IfStatementNode)) {
+      return new IfStatementNode(span, conditionExpr, ifStatements, elseStatements);
+    }
+
+    StatementNode.call(this, span);
+    this.conditionExpr_ = conditionExpr;
+    this.ifStatements_ = ifStatements;
+    this.elseStatements_ = elseStatements;
+  }
+
+  Hyper.inherit(StatementNode, IfStatementNode);
+
+  IfStatementNode.prototype.getConditionExpr = function() {
+    return this.conditionExpr_;
+  };
+
+  IfStatementNode.prototype.getIfStatements = function() {
+    return this.ifStatements_;
+  };
+
+  IfStatementNode.prototype.getElseStatements = function() {
+    return this.elseStatements_;
+  };
+
+  function RepeatStatementNode(span, untilExpr, statements) {
+    if (!(this instanceof RepeateStatementNode)) {
+      return new RepeateStatementNode(span, untilExpr, statements);
+    }
+
+    StatementNode.call(this, span);
+    this.untilExpr_ = untilExpr;
+    this.statements_ = statements;
+  };
+
+  Hyper.inherit(StatementNode, RepeatStatementNode);
+
+  RepeatStatementNode.prototype.getUntilExpr = function() {
+    return this.untilExpr_;
+  };
+
+  RepeatStatementNode.prototype.getStatements = function() {
+    return tnis.statements_;
+  };
+
+  function DoStatementNode(span, statements) {
+    if (!(this instanceof DoStatementNode)) {
+      return new DoStatementNode(span, statements);
+    }
+
+    StatementNode.call(this, span);
+    this.statements_ = statements;
+  };
+
+  Hyper.inherit(StatementNode, DoStatementNode);
+
+  DoStatementNode.prototype.getStatements = function() {
+    return this.statements_;
+  };
+
+  function NextStatementNode(span) {
+    if (!(this instanceof NextStatementNode)) {
+      return new NextStatementNode(span);
+    }
+
+    StatementNode.call(this, span);
+  };
+
+  Hyper.inherit(StatementNode, NextStatementNode);
+
+  function PassStatementNode(span, messageExpr) {
+    if (!(this instanceof PassStatementNode)) {
+      return new PassStatementNode(span, messageExpr);
+    }
+
+    StatementNode.call(this, span);
+    this.messageExpr_ = messageExpr;
+  };
+
+  Hyper.inherit(StatementNode, PassStatementNode);
+
+  PassStatementNode.prototype.getMessageExpr = function() {
+    return this.messageExpr_;
+  };
+
+  function ExitStatementNode(span, target, error) {
+    if (!(this instanceof ExitStatementNode)) {
+      return new ExitStatementNode(span);
+    }
+
+    StatementNode.call(this, span);
+    this.target_ = target;
+    this.error_ = error;
+  };
+
+  Hyper.inherit(StatementNode, ExitStatementNode);
+
+  ExitStatementNode.prototype.getTarget = function() {
+    return this.target_;
+  };
+
+  ExitStatementNode.prototype.getError = function() {
+    return this.error_;
   };
 
   /**
