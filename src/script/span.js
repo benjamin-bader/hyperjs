@@ -15,10 +15,10 @@
       return new Span(span);
     }
 
-    this.startLine = startLine;
-    this.startCol = startCol;
-    this.endLine = endLine;
-    this.endCol = endCol;
+    this.startLine_ = startLine;
+    this.startCol_ = startCol;
+    this.endLine_ = endLine;
+    this.endCol_ = endCol;
   };
 
   /**
@@ -26,7 +26,7 @@
    * @return {number}
    */
   Span.prototype.getStartLine = function() {
-    return this.startLine;
+    return this.startLine_;
   };
 
   /**
@@ -34,7 +34,7 @@
    * @return {number}
    */
   Span.prototype.getStartCol = function() {
-    return this.startCol;
+    return this.startCol_;
   };
 
   /**
@@ -42,7 +42,7 @@
    * @return {number}
    */
   Span.prototype.getEndLine = function() {
-    return this.endLine;
+    return this.endLine_;
   };
 
   /**
@@ -50,7 +50,7 @@
    * @return {number}
    */
   Span.prototype.getEndCol = function() {
-    return this.endCol;
+    return this.endCol_;
   };
 
   /**
