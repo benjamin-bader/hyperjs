@@ -45,7 +45,7 @@ Hyper.Script = (function(hs) {
 
 		this.lastCr  = false;
 		this.mlastCr = false;
-	};
+	}
 
 	StringReader.prototype = {
 		len: 0,

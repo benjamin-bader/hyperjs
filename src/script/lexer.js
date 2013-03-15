@@ -51,8 +51,7 @@
 	 * @return {boolean}
 	 */
 	function isIdStart(c) {
-		return LETTER_PATTERN.test(c)
-			|| c == "'";
+		return LETTER_PATTERN.test(c) || c == "'";
 	};
 
 	/**
@@ -61,10 +60,10 @@
 	 * @return {boolean}
 	 */
 	function isIdPart(c) {
-		return c == "."
-			|| c == "'"
-			|| isIdStart(c)
-			|| DIGIT_PATTERN.test(c);
+		return c == "." ||
+      c == "'" ||
+			isIdStart(c) ||
+			DIGIT_PATTERN.test(c);
 	};
 
 	/**
@@ -72,8 +71,7 @@
 	 * @return {boolean}
 	 */
 	function isLineTerm(c) {
-		return LINE_TERM_PATTERN.test(c)
-			|| c == '';
+		return LINE_TERM_PATTERN.test(c) || c == '';
 	};
 
 	/**

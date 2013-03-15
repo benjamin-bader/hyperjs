@@ -28,7 +28,7 @@ var HYPER_DEBUG = true;
 Object.size = function(obj) {
 	var size = 0;
 
-	for (key in obj) {
+	for (var key in obj) {
 		if (!obj.hasOwnProperty(key))
 			continue;
 
