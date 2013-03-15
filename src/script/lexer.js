@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-Hyper.Script = (function(hs, undefined) {
+(function(hs, undefined) {
 	/** @const */ var NUMBER_START_PATTERN = /\d|\./;
 	/** @const */ var DIGIT_PATTERN = /\d/;
 	/** @const */ var HEX_DIGIT_PATTERN = /[0-9a-fA-F]/;
@@ -656,6 +656,4 @@ Hyper.Script = (function(hs, undefined) {
 	hs.Lexer = Lexer;
 	hs.LexError = LexError;
 
-	return hs;
-
-})(Hyper.Script || {});
+})(Hyper.Script || (Hyper.Script = {}));
