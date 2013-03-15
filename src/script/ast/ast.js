@@ -5,23 +5,28 @@
   /**
    * Represents a node in a HyperTalk AST.  Not so useful on its own.
    * @constructor
-   * @param {Span} A span indicating the node's position in the source text.
+   * @param {!Span} A span indicating the node's position in the source text.
    */
   function Node(span) {
     if (!(this instanceof Node)) {
       return new Node(span);
     } 
 
-    this.span = span;
+    this.span_ = span;
+  };
+
+  Node.prototype.getSpan = function() {
+    return this.span_;
   };
 
   /**
    * Represents a function definition.
    * @constructor
-   * @param {Span} The region of the source text comprising this function.
-   * @param {string} The name of this function[
-   * @param {Array.<string>} The list of function arguments, if any.
-   * @param {Array.<StatementNode>} The statements comprising this function.
+   * @extends {Node}
+   * @param {!Span} span The region of the source text comprising this function.
+   * @param {!string} name The name of this function[
+   * @param {!Array.<string>} args The list of function arguments, if any.
+   * @param {!Array.<StatementNode>} statements The statements comprising this function.
    */
   function FunctionNode(span, name, args, statements) {
     if (!(this instanceof FunctionNode)) {
@@ -51,10 +56,11 @@
   /**
    * Represents a message handler.
    * @constructor
-   * @param {Span} The region of the source script comprising this message handler.
-   * @parem {string} The name of the message handled.
-   * @param {Array.<string>} The list of handler arguments, if any.
-   * @param {Array.<StatementNode>} The statements comprising this handler.
+   * @extends {Node}
+   * @param {!Span} The region of the source script comprising this message handler.
+   * @parem {!string} The name of the message handled.
+   * @param {!Array.<string>} The list of handler arguments, if any.
+   * @param {!Array.<StatementNode>} The statements comprising this handler.
    */
   function MessageHandlerNode(span, name, args, statements) {
     if (!(this instanceof MessageHandlerNode)) {
@@ -81,13 +87,28 @@
     return this.statements_;
   };
 
-  MessageHandlerNode.prototype.simplify = function() {
-    var stmts = this.getStatements();
-    for (var i = 0, len = stmts.length; i < len; ++i) {
-      stmts[i].simplify();
+  /**
+   * Represents an expression yielding a value.
+   * @constructor
+   * @extends {Node}
+   * @param {!Span} The region of source code comprising this expression.
+   */
+  function ExprNode(span) {
+    if (!(this instanceof ExprNode)) {
+      return new ExprNode(span);
     }
+
+    Node.call(this, span);
   };
 
+  Hyper.inherit(Node, ExprNode);
+
+  /**
+   * Represents a HyperTalk statement.
+   * @constructor
+   * @extends {Node}
+   * @param {!Span} span The region of the source script comprising this statement.
+   */
   function StatementNode(span) {
     if (!(this instanceof StatementNode)) {
       return new StatementNode(span);
@@ -98,6 +119,15 @@
 
   Hyper.inherit(Node, StatementNode);
 
+  /**
+   * Represents an if statement, possibly with an else branch.
+   * @constructor
+   * @extends {StatementNode}
+   * @param {!Span} The resgion of source comprising this if statement.
+   * @param {!ExprNode} conditionExpr The condition to be tested.
+   * @param {!Array.<StatementNode>} ifStatements The statement(s) to execute should the condition hold.
+   * @param {Array.<StatementNode>} elseStatements The statement(s), if any, to execute should the condition not hold.
+   */
   function IfStatementNode(span, conditionExpr, ifStatements, elseStatements) {
     if (!(this instanceof IfStatementNode)) {
       return new IfStatementNode(span, conditionExpr, ifStatements, elseStatements);
@@ -123,6 +153,14 @@
     return this.elseStatements_;
   };
 
+  /**
+   * A repeat control block.
+   * @constructor
+   * @extends {StatementNode}
+   * @param {!Span} span The region of source comprising this repeat block.
+   * @param {!ExprNode} untilExpr An expression which controls for how long to repeat.
+   * @param {!Array.<StatementNode>} statements The statements comprising the body of the repeat.
+   */
   function RepeatStatementNode(span, untilExpr, statements) {
     if (!(this instanceof RepeateStatementNode)) {
       return new RepeateStatementNode(span, untilExpr, statements);
@@ -143,6 +181,13 @@
     return tnis.statements_;
   };
 
+  /**
+   * A 'do' control block.
+   * @constructor
+   * @extends {StatementNode}
+   * @param {!Span} span The region of source comprising this do block.
+   * @param {!Array.<StatementNode>} statements The statments comprising this body of the do block.
+   */
   function DoStatementNode(span, statements) {
     if (!(this instanceof DoStatementNode)) {
       return new DoStatementNode(span, statements);
@@ -206,19 +251,37 @@
   /**
    * Represents a value-bearing node with two children, such as addition, subtraction,
    * put-into, etc.
+   * @constructor
+   * @extends {ExprNode}
+   * @param {!Span} span The source region comprising this binary expression
+   * @param {!ExprNode} left The left side of the binary expression
+   * @param {!string} op The operator
+   * @param {!ExprNode} right The right side of the binary expression
    */
   function BinaryNode(span, left, op, right) {
     if (!(this instanceof BinaryNode)) {
       return new BinaryNode(span, left, op, right);
     }
 
-    Node.call(this, span);
-    this.left = left;
-    this.op = op;
-    this.right = right;
+    ExprNode.call(this, span);
+    this.left_ = left;
+    this.op_ = op;
+    this.right_ = right;
   };
 
   Hyper.inherit(Node, BinaryNode);
+
+  BinaryNode.prototype.getLeft = function() {
+    return this.left_;
+  };
+
+  BinaryNode.prototype.getRight = function() {
+    return this.right_;
+  };
+
+  BinaryNode.prototype.getOp = function() {
+    return this.op_;
+  };
 
   /**
    * A qualifier of a chunk expression, e.g. "first word of" or "any character".
@@ -288,90 +351,6 @@
 
     // Simplify stuff here
   };
-
-  /**
-   * Represents the declaration of a message handler.
-   * @constructor
-   * @param {Span} The region of the source compassing this message handler
-   * @param {string} The name of this message handler
-   * @param {![string]} The parameter names taken by this message handler
-   * @param {![Node]} The statements comprising the body of this message handler
-   */
-  function MessageHandlerNode(span, name, parameters, statements) {
-    if (!(this instanceof MessageHandlerNode)) {
-      return new MessageHandlerNode(span, name, parameters, statements);
-    }
-
-    Node.call(this, span);
-    this.name = name;
-    this.parameters = parameters;
-    this.statements = statements;
-  };
-
-  Hyper.inherit(Node, MessageHandlerNode);
-
-  MessageHandlerNode.prototype.simplify = function() {
-    for (var i = 0, len = this.statements.length; i < len; ++i) {
-      this.statements[i].simplify();
-    }
-  };
-
-  /**
-   * Represents the declaration of a function.
-   * @constructor
-   * @param {Span} The region of the source compassing this function
-   * @param {string} The name of this function
-   * @param {![string]} The parameter names taken by this function
-   * @param {![Node]} The statements comprising the body of this function
-   */
-  function FunctionNode(span, name, parameters, statements) {
-    if (!(this instanceof FunctionNode)) {
-      return new FunctionNode(span, name, parameters, statements);
-    }
-
-    Node.call(this, span);
-    this.name = name;
-    this.parameters = parameters;
-    this.statements = statements;
-  };
-
-  Hyper.inherit(Node, FunctionNode);
-
-  FunctionNode.prototype.simplify = function() {
-    for (var i = 0, len = this.statements.length; i < len; ++i) {
-      this.statements[i].simplify();
-    }
-  };
-
-  /**
-   * Represents a variable assignment statement.
-   */
-  function AssignNode(span, left, right) {
-    if (!(this instanceof AssignNode)) {
-      return new AssignNode(span, left, right);
-    }
-
-    BinaryNode.call(this, span, left, '=', right);
-  };
-
-  Hyper.inherit(BinaryNode, AssignNode);
-
-  function StatementNode() {
-
-  };
-
-  function ExpressionNode() {
-
-  };
-
-  Hyper.inherit(Node, StatementNode);
-  Hyper.inherit(Node, ExpressionNode);
-
-  function IfNode() {
-
-  };
-
-  Hyper.inherit(Node, IfNode);
 
   exports.Node = Node;
   exports.StatementNode = StatementNode;

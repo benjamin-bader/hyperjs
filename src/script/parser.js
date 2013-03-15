@@ -1,14 +1,11 @@
-"use strict";
-
-if (!Hyper) {
-  Hyper = {};
-}
-
-if (!Hyper.Script) {
-  Hyper.Script = {};
-}
-
 (function(hs, Lexer, TT, undefined) {
+  "use strict";
+
+  /**
+   * The HyperTalk parser.
+   * @constructor
+   * @param {string} script The script to be parsed.
+   */
   function Parser(script) {
     var self = this instanceof Parser
                ? this
@@ -20,19 +17,15 @@ if (!Hyper.Script) {
     return self;
   };
 
-  Parser.prototype = {};
-
   function ParseError(message) {
-    var self = this instanceof ParseError ? this : new ParseError(message);
-    self.message = message;
-    return self;
+    if (!(this instanceof ParseError)) {
+      return new ParseError(message);
+    }
+
+    Error.call(this, message);
   };
 
-  ParseError.prototype = new Error();
-  ParseError.prototype.constructor = ParseError;
-  ParseError.prototype.name = 'ParseError';
-
-  Parser.prototype.__
+  Hyper.inherit(Error, ParseError);
 
   Parser.prototype.parse = function() {
     var peek = function(n) { return this.__lexer__.lookToken(n||0); };
