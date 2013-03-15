@@ -1,5 +1,5 @@
 
-(function(ast, undefined) {
+(function(exports, undefined) {
   "use strict";
 
   /**
@@ -10,9 +10,9 @@
    * @param {number} The line on which the span ends
    * @param {number} The column on which the span ends
    */
-  function Span(span) {
+  function Span(startLine, startCol, endLine, endCol) {
     if (!(this instanceof Span)) {
-      return new Span(span);
+      return new Span(startLine, startCol, endLine, endCol);
     }
 
     this.startLine_ = startLine;
@@ -64,6 +64,6 @@
          + this.getEndCol();
   };
 
-  ast.Span = Span;
-})(Hyper.Script.Ast || {Hyper.Script.Ast = {}));
+  exports.Span = Span;
+})(Hyper.Script || (Hyper.Script = {}));
 
