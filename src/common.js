@@ -166,21 +166,23 @@ if (HYPER_DEBUG || typeof Array.prototype.sum !== 'function') {
 	}
 }
 
-var Hyper = (function(hyper, undefined) {
+/*
+ * Define the core namespace of Hyper on the main window object (or exports if this is on the server).
+ */
+
+(function(root) {
+  root.Hyper = {};
 
 	function debug(message) {
 		console.log(message);
 	}
 
-	hyper.debug = HYPER_DEBUG ? debug : function() {};
+	root.Hyper.debug = HYPER_DEBUG ? debug : function() {};
 
-  hyper.inherit = function(Parent, Child) {
+  root.Hyper.inherit = function(Parent, Child) {
     var surrogate = function() {};
     surrogate.prototype = Parent.prototype;
     Child.prototype = new surrogate();
     Child.prototype.constructor = Child;
   };
-
-	return hyper;
-
-})({});
+})(this);
