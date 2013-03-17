@@ -198,7 +198,7 @@
     var arrayTrie = new Array(numToNode.length);
 
     for (var len = arrayTrie.length, i = 0; i < len; ++i) {
-      arrayTrie[i] = [];
+      arrayTrie[i] = new Array(ALPHABET_SIZE + 1);
     }
 
     var root = this;
@@ -212,16 +212,13 @@
       }
 
       var num = nodeToNum[node.getIdentifier()];
+      var subArr = arrayTrie[num];
 
       for (var i = 0; i < ALPHABET_SIZE; ++i) {
-        var subArr = arrayTrie[num];
-
-        arrayTrie[num][i] = node.children[i] ? nodeToNum[node.children[i].getIdentifier()] : 0;
+        subArr[i] = node.children[i] ? nodeToNum[node.children[i].getIdentifier()] : 0;
       }
 
-      if (node.endOfWord) {
-        arrayTrie[num][ALPHABET_SIZE] = 1;
-      }
+      subArr[ALPHABET_SIZE] = node.endOfWord ? 1 : 0;
     };
 
     fill(this);
