@@ -17,8 +17,9 @@ build: $(LIB)
 
 $(LIB): $(CATTED)
 	$(COMPILE) --js $<
+	@rm $<
 
-test: $(CATTED)
+test: clean $(CATTED)
 	@jasmine-headless-webkit -j spec/jasmine.yml
 
 test-compiled: $(LIB)
