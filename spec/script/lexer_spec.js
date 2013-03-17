@@ -240,6 +240,21 @@ describe("Lexer", function() {
       });
     });
 
+    describe("when given the string '1.e10'", function() {
+      beforeEach(function() {
+        text = "1.e10";
+        lexer = new Hyper.Script.Lexer(text);
+      });
+
+      it("yields a token of type SYMBOL.", function() {
+        expect(lexer.__nextToken__().type).toEqual(Hyper.Script.TokenType.SYMBOL);
+      });
+
+      it("yields a token containing the text '1'.", function() {
+        expect(lexer.__nextToken__().text).toEqual("1");
+      });
+    });
+
     describe("when given the string '.08", function() {
       beforeEach(function() {
         text = ".08";

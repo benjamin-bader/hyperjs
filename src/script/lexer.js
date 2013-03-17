@@ -117,13 +117,11 @@
    */
   function LexError(message) {
     if (message) {
-      this.message = message;
+      this.message = message || "Could not understand your HyperTalk.";
     }
   };
 
-  LexError.prototype = new Error("Could not understand your HyperTalk.");
-  LexError.prototype.name = "LexError";
-  LexError.prototype.constructor = LexError;
+  Hyper.inherit(Error, LexError);
 
   /**
    * A helper function that constructs a lexer token of a given type and content.
@@ -174,118 +172,159 @@
    * @param {string} firstChar
    * @return {Token} A NUMBER token.
    */
-  Lexer.prototype.__readNumber__ = function(firstChar) {
-    // XXX: Refactor such that states and transition functions are only defined once.
-    var c = firstChar;
-    var numChars = 1;
+  Lexer.prototype.__readNumber__ = (function() {
+    /** @enum */
     var states = {
-      SIGN:          0,
-      INTEGRAL:      1,
-      FRACTIONAL:    2,
-      EXPONENT_SIGN: 3,
-      EXPONENT:      4,
-      COMPLETE:      5,
-      NAN:           255
+      SIGN:                        0,
+      INTEGRAL_SIGN:               1,
+      INTEGRAL:                    2,
+      FRACTIONAL_NO_EXP:           3,
+      FRACTIONAL:                  4,
+      EXPONENT_SIGN:               5,
+      EXPONENT_ONE_DIGIT_REQUIRED: 6,
+      EXPONENT:                    7,
+      COMPLETE:                    8,
+      NAN:                         255
     };
 
-    var state = states.SIGN;
-    var lastSign = false;
-
-    function signOrIntegral() {
-      if (c == '+' || c == '-') {
-        lastSign = true;
-        return states.INTEGRAL;
-      }
-
-      if (DIGIT_PATTERN.test(c)) {
-        return states.INTEGRAL;
-      }
-
-      if (c == '.') {
-        return states.FRACTIONAL;
-      }
-
-      throw new LexError("Invalid number literal.");
-    };
-
-    function integral() {
-      if (DIGIT_PATTERN.test(c)) {
-        return states.INTEGRAL;
-      }
-
-      if (c == '.') {
-        return states.FRACTIONAL;
-      }
-
-      if (c == 'e' || c == 'E') {
-        return states.EXPONENT_SIGN;
-      }
-
-      if (lastSign) {
-        return states.NAN;
-      }
-
-      lastSign = false;
-
-      return states.COMPLETE;
-    };
-
-    function decimal() {
-      if (c != '.') {
-        throw new LexError("Invalid number literal.");
-      }
-
-      return states.FRACTIONAL;
-    };
-
-    function fractional() {
-      if (c == 'e' || c == 'E') {
-        return states.EXPONENT_SIGN;
-      }
-
-      if (DIGIT_PATTERN.test(c)) {
-        return states.FRACTIONAL;
-      }
-
-      return states.COMPLETE;
-    };
-
-    function exponent_sign() {
-      if (c == '+' || c == '-' || DIGIT_PATTERN.test(c)) {
-        return states.EXPONENT;
-      }
-
-      throw new LexError("Invalid number literal.");
-    };
-
-    function exponent() {
-      if (DIGIT_PATTERN.test(c)) {
-        return states.EXPONENT;
-      }
-
-      return states.COMPLETE;
-    };
-
-    var transitions = [signOrIntegral, integral, fractional, exponent_sign, exponent];
-
-    while (state != states.COMPLETE) {
-      state = transitions[state]();
-
-      if (state != states.COMPLETE) {
-        c = this.reader.readNextChar();
-        ++numChars;
-      }
-
-      if (state == states.NAN) {
-        return null;
-      }
+    function isSeparator(c) {
+      return c == '' || isWhitespace(c);
     }
 
-    // At this point, we've read the number plus one extra char.  Decrement and return the token.
-    this.reader.reset();
+    function sign(c) {
+      if (c == '+' || c == '-') {
+        return states.INTEGRAL_SIGN;
+      }
+
+      if (DIGIT_PATTERN.test(c)) {
+        return states.INTEGRAL;
+      }
+
+      if (c == '.') {
+        return states.FRACTIONAL;
+      }
+
+      throw new LexError("Invalid number literal");
+    };
+
+    function integralAfterSign(c) {
+      if (DIGIT_PATTERN.test(c)) {
+        return states.INTEGRAL;
+      }
+
+      if (c == '.') {
+        return states.FRACTIONAL;
+      }
+
+      return states.NAN;
+    }
+
+    function integral(c) {
+      if (DIGIT_PATTERN.test(c)) {
+        return states.INTEGRAL;
+      }
+
+      if (c == '.') {
+        return states.FRACTIONAL_NO_EXP;
+      }
+
+      if (c == 'e' || c == 'E') {
+        return states.EXPONENT_SIGN;
+      }
+
+      if (isSeparator(c)) {
+        return states.COMPLETE;
+      }
+
+      return states.NAN;
+    }
+
+    function fractionalNoExponent(c) {
+      if (DIGIT_PATTERN.test(c)) {
+        return states.FRACTIONAL;
+      }
+
+      return states.NAN;
+    }
+
+    function fractional(c) {
+      if (DIGIT_PATTERN.test(c)) {
+        return states.FRACTIONAL;
+      }
+
+      if (c == 'e' || c == 'E') {
+        return states.EXPONENT_SIGN;
+      }
+
+      if (isSeparator(c)) {
+        return states.COMPLETE;
+      }
+
+      console.log("char=(" + c + ")");
+
+      return states.NAN;
+    }
+
+    function exponentOrSign(c) {
+      if (c == '+' || c == '-') {
+        return states.EXPONENT_ONE_DIGIT_REQUIRED;
+      }
+
+      if (DIGIT_PATTERN.test(c)) {
+        return states.EXPONENT;
+      }
+
+      return states.NAN;
+    }
+
+    function exponentOneDigitRequired(c) {
+      if (DIGIT_PATTERN.test(c)) {
+        return states.EXPONENT;
+      }
+
+      return states.NAN;
+    }
+
+    function exponent(c) {
+      if (DIGIT_PATTERN.test(c)) {
+        return states.EXPONENT;
+      }
+
+      if (isSeparator(c)) {
+        return states.COMPLETE;
+      }
+
+      return states.NAN;
+    }
+
+    var transitions = [sign, integralAfterSign, integral, fractionalNoExponent, fractional, exponentOrSign, exponentOneDigitRequired, exponent];
+
+    // This is the actual __readNumber__ function, making use of all that was defined before.
+    return function(firstChar) {
+      var numChars = 1;
+      var state = states.SIGN;
+      var c = firstChar;
+
+      while (state != states.COMPLETE) {
+        state = transitions[state](c);
+
+        if (state == states.NAN) {
+          return null;
+        }
+
+        if (state != states.COMPLETE) {
+          c = this.reader.readNextChar();
+          ++numChars;
+        }
+      }
+
+      // At this point, we've read the number plus one extra char.  Decrement and return the token.
+      this.reader.reset();
     
-    return this.__makeToken__(hs.TokenType.NUMBER, this.reader.read(numChars - 1));
-  };
+      return this.__makeToken__(hs.TokenType.NUMBER, this.reader.read(numChars - 1));
+    };
+  })();
+
 
   Lexer.prototype.__readHexLiteral__ = function(prefix) {
     var numChars = prefix.length;
