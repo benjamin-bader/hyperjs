@@ -257,6 +257,24 @@ describe("Array.prototype", function() {
 	});
 });
 
+describe("Hyper.format", function() {
+  it("provides zero-based string formatting", function() {
+    var fmt = "{0} {0} {0} your {1}";
+    expect(Hyper.format(fmt, "row", "boat")).toBe("row row row your boat");
+  });
+
+  it("provides keyword-based string formatting", function() {
+    var fmt = "{verb} {verb} {verb} your {noun}";
+    var args = {verb: "parse", noun: "script"};
+    expect(Hyper.format(fmt, args)).toBe("parse parse parse your script");
+  });
+
+  it("escapes double-braces by replacing them with single braces", function() {
+    var fmt = "{{{0}";
+    expect(Hyper.format(fmt, "0")).toBe("{0");
+  });
+});
+
 describe("Hyper.inherit", function() {
   var Parent, Child;
 

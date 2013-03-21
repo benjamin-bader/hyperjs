@@ -163,7 +163,11 @@ if (HYPER_DEBUG || typeof Array.prototype.forEach !== 'function') {
 if (HYPER_DEBUG || typeof Array.prototype.sum !== 'function') {
   Array.prototype.sum = function() {
     return this.reduce(function(x, y) { return x + y; }, 0);
-  }
+  };
+}
+
+if (typeof String.format !== 'function') {
+
 }
 
 /*
@@ -185,4 +189,26 @@ if (HYPER_DEBUG || typeof Array.prototype.sum !== 'function') {
     Child.prototype = new surrogate();
     Child.prototype.constructor = Child;
   };
+
+  root.Hyper.format = (function() {
+    var matchExpr = /\{\{|\}\}|\{(\w+)\}/g;
+
+    return function(fmt, args) {
+      args = typeof args === 'object' ? args : Array.prototype.slice.call(arguments, 1);
+
+      return fmt.replace(matchExpr, function(m, n) {
+        if (m == "{{") { return "{"; }
+        if (m == "}}") { return "}"; }
+
+        if (typeof args !== 'object') {
+          n = parseInt(n, 10);
+          if (isNaN(n)) {
+            throw new Error("Invalid format specifier for argument type!");
+          }
+        }
+
+        return args[n];
+      });
+    };
+  })();
 })(this);
