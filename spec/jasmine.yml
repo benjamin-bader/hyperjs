@@ -30,14 +30,15 @@ stylesheets:
 #
 # Return an array of filepaths relative to spec_dir to include before jasmine specs.
 # Default: ["helpers/**/*.js"]
-#
+# 
 # EXAMPLE:
 #
 # helpers:
 #   - helpers/**/*.js
 #
 helpers:
-  - 'helpers/**/*.js'
+  - helpers/**/*.js
+
 # spec_files
 #
 #  Return an array of filepaths relative to spec_dir to include.
