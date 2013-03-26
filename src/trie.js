@@ -235,6 +235,8 @@
     this.__addWord__(word, 0);
   };
 
+  Trie.prototype.add = Trie.prototype.addWord;
+
   Trie.prototype.lookup = function(word) {
     return this.__lookup__(word, 0);
   };
@@ -261,7 +263,7 @@
       return (pos !== undefined ? ALPHABET[pos] : "<root>") + ":" + node.getIdentifier();
     }
 
-    while (cur = stack.shift()) {
+    while (!!(cur = stack.shift())) {
       var row = [],
         node = cur[0],
         pos = cur[1];
@@ -286,7 +288,14 @@
     }
 
     return { length: result.length, rows: result };
-  }
+  };
+
+  Trie.fromList = function(list) {
+    return (list || []).reduce(function(t, word) {
+      t.addWord(word);
+      return t;
+    }, new Trie());
+  };
 
   function FrozenTrie(array, root, height) {
     var nextChar = function(node, c) {
