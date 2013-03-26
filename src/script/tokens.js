@@ -39,22 +39,14 @@
   /**
    * Creates a new lexer token.
    * @constructor
-   * @param {TokenType} type
-   * @param {string} text
-   * @param {string} source
-   * @param {number} beginLine
-   * @param {number} beginCol
-   * @param {number} endLine
-   * @param {number} endCol
+   * @param {TokenType} type The lexical type of this token.
+   * @param {string} text The text comprising this token.
+   * @param {Hyper.Script.Span} span The region of the source file comprising this token.
    */
-  function Token(type, text, source, beginLine, beginCol, endLine, endCol) {
+  function Token(type, text, span) {
     this.type = type;
     this.text = text;
-    this.source = source;
-    this.beginLine = beginLine;
-    this.beginCol = beginCol;
-    this.endLine = endLine;
-    this.endCol = endCol;
+    this.span = span;
     this.specialToken = null;
     this.next = null;
   };
@@ -74,6 +66,26 @@
    */
   Token.prototype.toString = function() {
     return this.text + "{" + this.beginLine + ":" + this.beginCol + "-" + this.endLine + ":" + this.endCol + "}";
+  };
+
+  Token.prototype.getSpan = function() {
+    return this.span;
+  };
+
+  Token.prototype.getBeginLine = function() {
+    return this.span.getStartLine();
+  };
+
+  Token.prototype.getBeginCol = function() {
+    return this.span.getStartCol();
+  };
+
+  Token.prototype.getEndLine = function() {
+    return this.span.getEndLine();
+  };
+
+  Token.prototype.getEndCol = function() {
+    return this.span.getEndCol();
   };
 
   // Exports

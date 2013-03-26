@@ -32,7 +32,6 @@ describe("Lexer", function() {
       expect(token).not.toBeNull();
       expect(token.type).toEqual(Hyper.Script.TokenType.ID);
       expect(token.text).toEqual("idOfMe");
-      expect(token.source).toEqual(source);
     });
   });
 
@@ -531,38 +530,38 @@ describe("Lexer", function() {
     it("looks ahead to the nth token in the token stream, where the current position is 0", function() {
       lexer = new Hyper.Script.Lexer("one 2 ~~three~~");
 
-      expect(lexer.lookToken(1).type).toEqual(Hyper.Script.TokenType.ID);
-      expect(lexer.lookToken(2).type).toEqual(Hyper.Script.TokenType.NUMBER);
-      expect(lexer.lookToken(3).type).toEqual(Hyper.Script.TokenType.LINE_TERM);
-      expect(lexer.lookToken(3).specialToken).toBeDefined();
-      expect(lexer.lookToken(3).specialToken.type).toEqual(Hyper.Script.TokenType.COMMENT);
+      expect(lexer.lookToken(0).type).toEqual(Hyper.Script.TokenType.ID);
+      expect(lexer.lookToken(1).type).toEqual(Hyper.Script.TokenType.NUMBER);
+      expect(lexer.lookToken(2).type).toEqual(Hyper.Script.TokenType.LINE_TERM);
+      expect(lexer.lookToken(2).specialToken).toBeDefined();
+      expect(lexer.lookToken(2).specialToken.type).toEqual(Hyper.Script.TokenType.COMMENT);
     })
 
     describe("when given a multi-token string", function() {
       text = "do make say think 1 + - 2.0";
 
       it("returns the nth token from the lexer's current position", function() {
-        expect(lexer.lookToken(3).type).toEqual(Hyper.Script.TokenType.ID);
-        expect(lexer.lookToken(3).text).toEqual("say");
+        expect(lexer.lookToken(2).type).toEqual(Hyper.Script.TokenType.ID);
+        expect(lexer.lookToken(2).text).toEqual("say");
 
-        expect(lexer.lookToken(5).type).toEqual(Hyper.Script.TokenType.NUMBER);
-        expect(lexer.lookToken(5).text).toEqual("1");
+        expect(lexer.lookToken(4).type).toEqual(Hyper.Script.TokenType.NUMBER);
+        expect(lexer.lookToken(4).text).toEqual("1");
 
-        expect(lexer.lookToken(7).type).toEqual(Hyper.Script.TokenType.SYMBOL);
-        expect(lexer.lookToken(7).text).toEqual("-");
+        expect(lexer.lookToken(6).type).toEqual(Hyper.Script.TokenType.SYMBOL);
+        expect(lexer.lookToken(6).text).toEqual("-");
 
         var tok = lexer.getToken();
         expect(tok.type).toEqual(Hyper.Script.TokenType.ID);
         expect(tok.text).toEqual("do");
 
-        expect(lexer.lookToken(3).type).toEqual(Hyper.Script.TokenType.ID);
-        expect(lexer.lookToken(3).text).toEqual("think");
+        expect(lexer.lookToken(2).type).toEqual(Hyper.Script.TokenType.ID);
+        expect(lexer.lookToken(2).text).toEqual("think");
 
-        expect(lexer.lookToken(5).type).toEqual(Hyper.Script.TokenType.SYMBOL);
-        expect(lexer.lookToken(5).text).toEqual("+");
+        expect(lexer.lookToken(4).type).toEqual(Hyper.Script.TokenType.SYMBOL);
+        expect(lexer.lookToken(4).text).toEqual("+");
 
-        expect(lexer.lookToken(7).type).toEqual(Hyper.Script.TokenType.NUMBER);
-        expect(lexer.lookToken(7).text).toEqual("2.0");
+        expect(lexer.lookToken(6).type).toEqual(Hyper.Script.TokenType.NUMBER);
+        expect(lexer.lookToken(6).text).toEqual("2.0");
       });
 
       it("populates the lexer's look-ahead buffer.", function() {
@@ -570,7 +569,7 @@ describe("Lexer", function() {
 
         lexer.lookToken(2);
 
-        expect(lexer.buffer.length).toEqual(2);
+        expect(lexer.buffer.length).toEqual(3);
       });
     });
   });
@@ -590,9 +589,9 @@ describe("Lexer", function() {
       });
 
       it("returns tokens from the look-buffer and not from the source text", function() {
-        expect(lexer.buffer.length).toEqual(2);
+        expect(lexer.buffer.length).toEqual(3);
         expect(lexer.getToken().text).toEqual("go");
-        expect(lexer.buffer.length).toEqual(1);
+        expect(lexer.buffer.length).toEqual(2);
       });
     });
   });

@@ -131,14 +131,16 @@
    * @return {Token} The constructed token.
    */
   Lexer.prototype.__makeToken__ = function(type, token) {
-    return new hs.Token(
-        type,
-        token,
-        this.source,
+    var span = new Hyper.Script.Span(
         this.reader.markedLine(),
         this.reader.markedColumn(),
         this.reader.getLine(),
         this.reader.getColumn());
+
+    return new hs.Token(
+        type,
+        token,
+        span);
   };
 
   /**
@@ -389,12 +391,19 @@
    */
   Lexer.prototype.__readId__ = function(firstChar) {
     var numChars = 1;
+    var lastChar = firstChar;
 
-    while (isIdPart(this.reader.readNextChar())) {
+    var tmp;
+    while (isIdPart((tmp = this.reader.readNextChar()))) {
       ++numChars;
+      lastChar = tmp;
     }
 
     this.reader.reset();
+
+    if (firstChar == "'" && (numChars == 1 || lastChar != "'")) {
+      throw new LexError("Quoted identifiers must have a closing quote!");
+    }
 
     return this.__makeToken__(hs.TokenType.ID, this.reader.read(numChars));
   };
@@ -656,11 +665,11 @@
       return this.lastToken;
     }
 
-    while (this.buffer.length < pos) {
+    while (this.buffer.length < (pos + 1)) {
       this.buffer.push(this.__assembleToken__());
     }
 
-    return this.buffer[pos - 1];
+    return this.buffer[pos];
   };
 
   /**
