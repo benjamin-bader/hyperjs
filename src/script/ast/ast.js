@@ -93,15 +93,47 @@
    * @extends {Node}
    * @param {!Span} The region of source code comprising this expression.
    */
-  function ExprNode(span) {
-    if (!(this instanceof ExprNode)) {
-      return new ExprNode(span);
+  function Expr(span) {
+    if (!(this instanceof Expr)) {
+      return new Expr(span);
     }
 
     Node.call(this, span);
   };
 
-  Hyper.inherit(Node, ExprNode);
+  Hyper.inherit(Node, Expr);
+
+  /* 
+   * ScriptList = NL Script | Script
+   *
+   * Script = Handler | Function
+   *
+   * Handler =
+   *  | ON Ident [IdentList]
+   *      StatementList
+   *    END Ident
+   *
+   * IdentList = Ident | Ident COMMA IdentList
+   * Ident = whatever
+   *
+   * Statement =
+   *  | if EXPR then STMT
+   *  | if EXPR then
+   *      STMT LIST
+   *    end if
+   *  | do
+   *      STMT LIST
+   *    end do
+   *  | global IDENT
+   *  | repeat (EXPR [times])
+   *      STMT LIST
+   *    end repeat
+   *
+   *  Expr =
+   *    | 
+   *
+   */
+
 
   /**
    * Represents a HyperTalk statement.
@@ -124,7 +156,7 @@
    * @constructor
    * @extends {StatementNode}
    * @param {!Span} The resgion of source comprising this if statement.
-   * @param {!ExprNode} conditionExpr The condition to be tested.
+   * @param {!Expr} conditionExpr The condition to be tested.
    * @param {!Array.<StatementNode>} ifStatements The statement(s) to execute should the condition hold.
    * @param {Array.<StatementNode>} elseStatements The statement(s), if any, to execute should the condition not hold.
    */
@@ -158,7 +190,7 @@
    * @constructor
    * @extends {StatementNode}
    * @param {!Span} span The region of source comprising this repeat block.
-   * @param {!ExprNode} untilExpr An expression which controls for how long to repeat.
+   * @param {!Expr} untilExpr An expression which controls for how long to repeat.
    * @param {!Array.<StatementNode>} statements The statements comprising the body of the repeat.
    */
   function RepeatStatementNode(span, untilExpr, statements) {
@@ -248,40 +280,158 @@
     return this.error_;
   };
 
+  function GlobalStatementNode(span, name) {
+    if (!(this instanceof GlobalStatementNode)) {
+      return new GlobalStatementNode(span, name);
+    }
+
+    StatementNode.call(this, span);
+    this.name_ = name;
+  }
+
+  Hyper.inherit(StatementNode, GlobalStatementNode);
+
+  GlobalStatementNode.prototype.getName = function() {
+    return this.name_;
+  };
+
+  function FunctionOrPropertyExpr(span, functionOrProperty) {
+    if (!(this instanceof FunctionOrPropertyExpr)) {
+      return new FunctionOrPropertyExpr(span, functionOrProperty);
+    }
+
+    Expr.call(this, span);
+    this.functionOrProperty_ = functionOrProperty;
+  }
+
+  Hyper.inherit(Expr, FunctionOrPropertyExpr);
+
+  FunctionOrPropertyExpr.prototype.getFunctionOrExpr = function() {
+    return this.functionOrProperty_;
+  };
+
+  function VariableExpr(span, variable) {
+    if (!(this instanceof VariableExpr)) {
+      return new VariableExpr(span, variable);
+    }
+
+    Expr.call(this, span);
+    this.variable_ = variable;
+  }
+
+  Hyper.inherit(Expr, VariableExpr);
+
+  VariableExpr.prototype.getVariable = function() {
+    return this.variable_;
+  };
+
+  /**
+   * Represents an expression referencing the message box.  Note that this
+   * expression is sometimes implicit and might not have a span.
+   * @constructor
+   * @extends {Expr}
+   * @param {Span} span The source region, if any, representing this expression.
+   */
+  function MessageBoxExpr(span) {
+    if (!(this instanceof MessageBoxExpr)) {
+      return new MessageBoxExpr(span);
+    }
+
+    Expr.call(this, span);
+  }
+
+  Hyper.inherit(Expr, MessageBoxExpr);
+
+  function unquote(str) {
+    if (str.charAt(0) == '"') {
+      return str.substring(1, str.length - 2);
+    }
+
+    return str;
+  }
+
+  /**
+   * Represents a string literal.
+   * @constructor
+   * @extends {Expr}
+   * @param {Span} span The source region comprising this string literal.
+   * @param {string} text The string literal itself, including the surrounding quotation marks.
+   */
+  function StringLiteralExpr(span, text) {
+    if (!(this instanceof StringLiteralExpr)) {
+      return new StringLiteralExpr(span, text);
+    }
+
+    Expr.call(this, span);
+
+    this.text_ = text.substring(1, text.length - 1);
+  }
+
+  Hyper.inherit(Expr, StringLiteralExpr);
+
+  StringLiteralExpr.prototype.getText = function() {
+    return this.text_;
+  };
+
   /**
    * Represents a value-bearing node with two children, such as addition, subtraction,
    * put-into, etc.
    * @constructor
-   * @extends {ExprNode}
+   * @extends {Expr}
    * @param {!Span} span The source region comprising this binary expression
-   * @param {!ExprNode} left The left side of the binary expression
+   * @param {!Expr} left The left side of the binary expression
    * @param {!string} op The operator
-   * @param {!ExprNode} right The right side of the binary expression
+   * @param {!Expr} right The right side of the binary expression
    */
-  function BinaryNode(span, left, op, right) {
-    if (!(this instanceof BinaryNode)) {
-      return new BinaryNode(span, left, op, right);
+  function BinaryExpr(span, left, op, right) {
+    if (!(this instanceof BinaryExpr)) {
+      return new BinaryExpr(span, left, op, right);
     }
 
-    ExprNode.call(this, span);
+    Expr.call(this, span);
     this.left_ = left;
     this.op_ = op;
     this.right_ = right;
   };
 
-  Hyper.inherit(Node, BinaryNode);
+  Hyper.inherit(Expr, BinaryExpr);
 
-  BinaryNode.prototype.getLeft = function() {
+  BinaryExpr.prototype.getLeft = function() {
     return this.left_;
   };
 
-  BinaryNode.prototype.getRight = function() {
+  BinaryExpr.prototype.getRight = function() {
     return this.right_;
   };
 
-  BinaryNode.prototype.getOp = function() {
+  BinaryExpr.prototype.getOp = function() {
     return this.op_;
   };
+
+  var ordinalsToNumbers = {
+    first: 1,
+    second: 2,
+    third: 3,
+    fourth: 4,
+    fifth: 5,
+    sixth: 6,
+    seventh: 7,
+    eighth: 8,
+    ninth: 9,
+    tenth: 10
+  };
+
+  var specialOrdinals = [ "middle", "last", "any" ];
+
+  var chunkTypes = (function() {
+    var trie = new Hyper.Trie();
+    trie.addWord("word");
+    trie.addWord("char");
+    trie.addWord("character");
+    trie.addWord("line");
+    trie.addWord("item");
+    return trie.freeze();
+  })();
 
   /**
    * A qualifier of a chunk expression, e.g. "first word of" or "any character".
@@ -295,10 +445,17 @@
       return new ChunkQualifier(span, ordinal, type);
     }
 
-    this.span_ = span;
+    Node.call(this, span);
+
+    if (!chunkTypes.lookup(type)) {
+      throw new Error("Invalid chunk type: " + type);
+    }
+
     this.ordinal_ = ordinal;
     this.type_ = type;
   };
+
+  Hyper.inherit(Node, ChunkQualifier);
 
   ChunkQualifier.prototype.getSpan = function() {
     return this.span_;
@@ -317,11 +474,11 @@
    * @constructor
    * @param {Span}
    * @param {Array.<ChunkQualifier>} The qualifiers comprising the chunk to yield.
-   * @param {Expression} The value-bearing expression to be chunked.
+   * @param {Expr} The value-bearing expression to be chunked.
    */
-  function ChunkExpression(span, qualifiers, expr) {
-    if (!(this instanceof ChunkExpression)) {
-      return new ChunkExpression(span, qualifiers, expr);
+  function ChunkExpr(span, qualifiers, expr) {
+    if (!(this instanceof ChunkExpr)) {
+      return new ChunkExpr(span, qualifiers, expr);
     }
 
     Node.call(this, span);
@@ -329,36 +486,44 @@
     this.expr = expr;
   };
 
-  Hyper.inherit(Node, ChunkExpression);
+  Hyper.inherit(Node, ChunkExpr);
 
-  function PutCommand(span, expr, target) {
-    if (!(this instanceof PutCommand)) {
-      return new PutCommand(span, expr, target);
+  function PutCommandNode(span, expr, target) {
+    if (!(this instanceof PutCommandNode)) {
+      return new PutCommandNode(span, expr, target);
     }
 
-    Node.call(this, span);
-    this.expr = expr;
-    this.target = target;
+    StatementNode.call(this, span);
+    this.expr_ = expr;
+    this.target_ = target;
   };
 
-  Hyper.inherit(Node, PutCommand);
+  Hyper.inherit(StatementNode, PutCommandNode);
 
+  PutCommandNode.prototype.getSourceExpr = function() {
+    return this.expr_;
+  };
 
-  BinaryNode.prototype.simplify = function() {
-    // XXX Implement arithmetic simplifications
-    this.left.simplify();
-    this.right.simplify();
-
-    // Simplify stuff here
+  PutCommandNode.prototype.getTarget = function() {
+    return this.target_;
   };
 
   exports.Node = Node;
   exports.StatementNode = StatementNode;
-  exports.ExpressionNode = ExpressionNode;
-  exports.BinaryNode = BinaryNode;
-  exports.IfNode = IfNode;
-  exports.ChunkExpression = ChunkExpression;
+  exports.Expr = Expr;
+  exports.BinaryExpr = BinaryExpr;
+  exports.MessageHandlerNode = MessageHandlerNode;
+  exports.IfStatementNode = IfStatementNode;
+  exports.ChunkExpr = ChunkExpr;
   exports.ChunkQualifier = ChunkQualifier;
+
+  // Export commands
+  exports.PutCommandNode = PutCommandNode;
+
+  // Export intrinsic expressions
+  exports.MessageBoxExpr = MessageBoxExpr;
+
+  exports.StringLiteralExpr = StringLiteralExpr;
 
 })(Hyper.Script.Ast || (Hyper.Script.Ast = {}), Hyper.Script.TokenType);
 

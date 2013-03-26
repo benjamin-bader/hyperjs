@@ -5,3 +5,5 @@ src/script/ops.js
 src/script/reader.js
 src/script/lexer.js
 src/script/span.js
+src/script/ast/ast.js
+src/script/parser.js
